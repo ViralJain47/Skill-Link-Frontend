@@ -7,8 +7,9 @@ function App() {
   return (
     <>
     <Header />
+    <div className='flex flex-col'>
     <HeroSection />
-    <AboutUs />
+    <AboutUs /></div>
     </>
   )
 }

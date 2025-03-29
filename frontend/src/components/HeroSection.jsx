@@ -37,13 +37,13 @@ function HeroSection() {
 
   return (
     <div
-      className="relative flex justify-between items-center px-8 py-16 pt-4 gap-10 min-h-160 align-middle"
+      className="relative grid grid-cols-2 justify-between items-center px-8 py-16 pt-4 gap-10 min-h-160 align-middle"
       style={{
         backgroundColor: "#FFCCCC", 
       }}
     >
       <div
-        className="flex-1 max-w-lg pl-20 mb-30 mt-3 content-float"
+        className="flex-1 max-w-lg pl-20 mb-30 mt-3 content-float align-middle place-self-center"
       >
         <h1 className="text-4xl mb-5 text-black">Showcase, Learn and Grow</h1>
         <p className="text-base leading-6 text-gray-800 ">
@@ -58,7 +58,7 @@ function HeroSection() {
         </Link>
       </div>
       <div
-        className="flex-1 flex justify-center items-center mb-20 image-float"
+        className="flex-1 flex place-self-center justify-center items-center mb-20 image-float"
       >
         <img
           src={heroImage}

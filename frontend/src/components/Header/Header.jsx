@@ -17,25 +17,25 @@ function Header() {
       </div>
 
       <nav className="flex items-center gap-8 px-8 ml-auto">
-        <Link to="/" className="text-sm font-medium hover:text-gray-600">
+        <Link to="/" className="text-sm font-medium text-gray-800 hover:text-black hover:underline">
           Home
         </Link>
-        <Link to="/" className="text-sm font-medium hover:text-gray-600">
-          Product
+        <Link to="/" className="text-sm font-medium text-gray-800 hover:text-black hover:underline">
+          About
         </Link>
-        <Link to="/" className="text-sm font-medium hover:text-gray-600">
-          Pricing Plans
+        <Link to="/" className="text-sm font-medium text-gray-800 hover:text-black hover:underline">
+          Features
         </Link>
-        <Link to="/" className="text-sm font-medium hover:text-gray-600">
+        <Link to="/" className="text-sm font-medium text-gray-800 hover:text-black hover:underline">
           Contact
         </Link>
       </nav>
 
       <div className="flex items-center gap-4">
-        <Link to="/" className="text-sm font-medium hover:text-gray-600">
+        <Link to="/" className="text-sm font-medium hover:bg-amber-500 px-4 py-2 rounded-xl duration-200">
           Log In
         </Link>
-        <Button className="bg-amber-500 hover:bg-amber-600 text-black font-normal rounded-xl px-1.5-2.5">Register</Button>
+        <Button className="bg-amber-500 border hover:bg-amber-600 text-black font-normal rounded-xl px-1.5-2.5">Register</Button>
       </div>
     </header>
   )
