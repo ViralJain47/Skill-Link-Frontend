@@ -16,7 +16,7 @@ function Header() {
         </div>
       </div>
 
-      <nav className="hidden md:flex items-center gap-8 px-4 justify-between">
+      <nav className="flex items-center gap-8 px-8 ml-auto">
         <Link to="/" className="text-sm font-medium hover:text-gray-600">
           Home
         </Link>
