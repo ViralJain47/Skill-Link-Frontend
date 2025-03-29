@@ -1,76 +1,82 @@
-import Button from "./Button"
+import { Link } from "react-router-dom";
+import heroImage from "../assets/LandingImage.png";
+import { useEffect } from "react";
 
-export default function HeroSection() {
+function HeroSection() {
+  
+  useEffect(() => {
+   
+    const style = document.createElement('style');
+    style.textContent = `
+      @keyframes floatContent {
+        0% { transform: translateY(0); }
+        50% { transform: translateY(-20px); }
+        100% { transform: translateY(0); }
+      }
+      
+      @keyframes floatImage {
+        0% { transform: translateY(0); }
+        50% { transform: translateY(20px); }
+        100% { transform: translateY(0); }
+      }
+      
+      .content-float {
+        animation: floatContent 8s ease-in-out infinite;
+      }
+      
+      .image-float {
+        animation: floatImage 8s ease-in-out infinite;
+      }
+    `;
+    document.head.appendChild(style);
+    
+    return () => {
+      document.head.removeChild(style);
+    };
+  }, []);
+
   return (
-    <section className="w-full py-12 px-6 md:px-12 lg:px-24 flex flex-col md:flex-row items-center">
-      <div className="w-full md:w-1/2 space-y-6">
-        <h1 className="text-4xl md:text-5xl font-bold leading-tight">
-          Communicate.
-          <br />
-          Collaborate.
-          <br />
-          Create.
-        </h1>
-        <p className="text-lg text-gray-700 max-w-md">
-          WeDu provides an effective and powerful way to manage your projects
+    <div
+      className="relative flex justify-between items-center px-8 py-16 pt-4 gap-10 min-h-160 align-middle"
+      style={{
+        backgroundColor: "#FFCCCC", 
+      }}
+    >
+      <div
+        className="flex-1 max-w-lg pl-20 mb-30 mt-3 content-float"
+      >
+        <h1 className="text-4xl mb-5 text-black">Showcase, Learn and Grow</h1>
+        <p className="text-base leading-6 text-gray-800 ">
+          SkillLink connects learners and experts, offering diverse courses, workshops, and one-on-one sessions to share
+          knowledge, master new skills, and build meaningful connections.
         </p>
-        <Button className="bg-black hover:bg-gray-800 text-white px-6">Get Started</Button>
+        <Link
+          to="/get-started"
+          className="inline-block bg-amber-400 text-black py-3 px-8 rounded-full font-medium transition-colors duration-300 hover:bg-amber-500 mt-8"
+        >
+          Get Started
+        </Link>
       </div>
-
-      <div className="w-full md:w-1/2 mt-12 md:mt-0">
-        <div className="relative w-full h-[400px]">
-          <IllustrationComponent />
-        </div>
+      <div
+        className="flex-1 flex justify-center items-center mb-20 image-float"
+      >
+        <img
+          src={heroImage}
+          alt="Person learning online"
+          className="max-w-full h-auto"
+        />
       </div>
-    </section>
-  )
-}
-
-//we have to replace an image here
-function IllustrationComponent() {
-  return (
-    <div className="relative w-full h-full">
-      {/* Background elements */}
-      <div className="absolute right-10 top-10 w-32 h-32 rounded-full bg-green-400 opacity-70"></div>
-      <div className="absolute right-40 bottom-20 w-20 h-20 rounded-full bg-amber-300 opacity-70"></div>
-
-      {/* Main board */}
-      <div className="absolute right-20 top-20 w-64 h-80 bg-gray-200 rounded-lg shadow-lg overflow-hidden">
-        {/* Red card */}
-        <div className="absolute top-4 left-4 right-4 h-16 bg-red-400 rounded-md shadow"></div>
-
-        {/* Yellow card */}
-        <div className="absolute top-24 left-4 right-4 h-16 bg-amber-400 rounded-md shadow"></div>
-
-        {/* Pink card */}
-        <div className="absolute top-44 left-4 w-28 h-16 bg-pink-200 rounded-md shadow"></div>
-
-        {/* Green card */}
-        <div className="absolute top-44 right-4 w-28 h-16 bg-green-400 rounded-md shadow"></div>
-
-        {/* Blue card */}
-        <div className="absolute bottom-4 left-4 right-4 h-16 bg-blue-400 rounded-md shadow"></div>
+      {/* Add the speech bubble tail */}
+      <div className="absolute bottom-0 left-0 w-full overflow-hidden">
+        <svg viewBox="0 0 1200 120" preserveAspectRatio="none" className="w-full h-16 md:h-24">
+          <path
+            d="M321.39,56.44c58-10.79,114.16-30.13,172-41.86,82.39-16.72,168.19-17.73,250.45-.39C823.78,31,906.67,72,985.66,92.83c70.05,18.48,146.53,26.09,214.34,3V120H0V0C0,0,0,0,0,0z"
+            fill="#ffffff"
+          ></path>
+        </svg>
       </div>
-
-      {/* Characters */}
-      <div className="absolute top-0 right-24 w-20 h-20 flex justify-center items-center">
-        <div className="w-12 h-12 rounded-full bg-blue-200"></div>
-        <div className="absolute top-6 w-8 h-8 rounded-full bg-black"></div>
-      </div>
-
-      <div className="absolute bottom-10 right-10 w-20 h-20 flex justify-center items-center">
-        <div className="w-12 h-12 rounded-full bg-amber-200"></div>
-      </div>
-
-      <div className="absolute bottom-10 right-40 w-20 h-20 flex justify-center items-center">
-        <div className="w-12 h-12 rounded-full bg-green-200"></div>
-      </div>
-
-      {/* Decorative elements */}
-      <div className="absolute left-20 top-40 w-24 h-12 bg-green-500 rounded-full"></div>
-      <div className="absolute left-10 bottom-10 w-16 h-8 bg-amber-500 rounded-full"></div>
-      <div className="absolute right-60 bottom-20 w-12 h-6 bg-red-400 rounded-full"></div>
     </div>
-  )
+  );
 }
 
+export default HeroSection;

@@ -1,0 +1,19 @@
+@keyframes floatContent {
+    0% { transform: translateY(0); }
+    50% { transform: translateY(-20px); }
+    100% { transform: translateY(0); }
+  }
+  
+  @keyframes floatImage {
+    0% { transform: translateY(0); }
+    50% { transform: translateY(20px); }
+    100% { transform: translateY(0); }
+  }
+  
+  .content-float {
+    animation: floatContent 8s ease-in-out infinite;
+  }
+  
+  .image-float {
+    animation: floatImage 8s ease-in-out infinite;
+  }
