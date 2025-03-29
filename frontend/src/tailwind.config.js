@@ -16,15 +16,15 @@ module.exports = {
           background: "hsl(var(--background))",
           foreground: "hsl(var(--foreground))",
           primary: {
-            DEFAULT: "#ffffff", 
+            DEFAULT: "#ffffff",
             foreground: "hsl(var(--primary-foreground))",
           },
           secondary: {
-            DEFAULT: "#FFA500", 
+            DEFAULT: "#FFA500",
             foreground: "hsl(var(--secondary-foreground))",
           },
           accent: {
-            DEFAULT: "#FFCCCC", 
+            DEFAULT: "#FFCCCC",
             foreground: "hsl(var(--accent-foreground))",
           },
           destructive: {
@@ -76,8 +76,23 @@ module.exports = {
           md: "calc(var(--radius) - 2px)",
           sm: "calc(var(--radius) - 4px)",
         },
+        animation: {
+          "float-up": "floatUp 8s ease-in-out infinite",
+          "float-down": "floatDown 8s ease-in-out infinite",
+        },
+        keyframes: {
+          floatUp: {
+            "0%": { transform: "translateY(0)" },
+            "50%": { transform: "translateY(-20px)" },
+            "100%": { transform: "translateY(0)" },
+          },
+          floatDown: {
+            "0%": { transform: "translateY(0)" },
+            "50%": { transform: "translateY(20px)" },
+            "100%": { transform: "translateY(0)" },
+          },
+        },
       },
     },
     plugins: [require("tailwindcss-animate")],
   }
-  
