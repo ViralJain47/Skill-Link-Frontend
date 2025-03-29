@@ -3,7 +3,7 @@ import Button from "../Button"
 
 function Header() {
   return (
-    <header className="w-full py-4 px-6 md:px-12 lg:px-24 flex items-center justify-between" style={{ backgroundColor: "#FFCCCC" }}>
+    <header className="w-full py-4 px-6 md:px-12 lg:px-24 flex items-center justify-between border-b border-neutral-400" style={{ backgroundColor: "#FFCCCC" }}>
       <div className="flex items-center gap-2">
         <div className="bg-black p-1 rounded flex items-center justify-center">
           <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -32,7 +32,7 @@ function Header() {
       </nav>
 
       <div className="flex items-center gap-4">
-        <Link to="/" className="text-sm font-medium hover:bg-amber-500 px-4 py-2 rounded-xl duration-200">
+        <Link to="/" className="text-sm font-medium hover:border-black border border-transparent px-4 py-2 rounded-xl duration-200">
           Log In
         </Link>
         <Button className="bg-amber-500 border hover:bg-amber-600 text-black font-normal rounded-xl px-1.5-2.5">Register</Button>

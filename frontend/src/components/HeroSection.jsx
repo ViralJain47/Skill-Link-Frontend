@@ -52,7 +52,7 @@ function HeroSection() {
         </p>
         <Link
           to="/get-started"
-          className="inline-block bg-amber-400 text-black py-3 px-8 rounded-full font-medium transition-colors duration-300 hover:bg-amber-500 mt-8"
+          className="inline-block bg-amber-400 text-black py-3 px-8 rounded-full font-medium transition-colors duration-300 hover:bg-amber-500 mt-8 border"
         >
           Get Started
         </Link>

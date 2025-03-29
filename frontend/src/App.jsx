@@ -1,6 +1,7 @@
 import './App.css'
 import AboutUs from './components/AboutUs'
 import ContactUs from './components/ContactUs'
+import Footer from './components/Footer/Footer'
 import Header from './components/Header/Header'
 import HeroSection from './components/HeroSection'
 
@@ -13,6 +14,7 @@ function App() {
     <AboutUs />
     <ContactUs />
     </div>
+    <Footer />
     </>
   )
 }
