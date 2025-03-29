@@ -62,7 +62,7 @@ function AboutUs() {
         <div className="">
           <img
             className="rounded-2xl"
-            src={Rocket}
+            src="https://img.freepik.com/premium-vector/creative-team-concept-illustration_86047-282.jpg?ga=GA1.1.1425286223.1739288370&semt=ais_hybrid"
             alt="This is an image"
             height={"500px"}
           />
@@ -106,7 +106,7 @@ function AboutUs() {
         <div className="">
           <img
             className="rounded-2xl"
-            src=""
+            src={Rocket}
             alt="This is an image"
             height={"500px"}
           />
