@@ -1,4 +1,4 @@
-import { Link, useNavigate } from "react-router-dom";
+import { Link, useNavigate, useParams } from "react-router-dom";
 import Button from "../Button";
 
 function Header() {
@@ -33,25 +33,25 @@ function Header() {
 
       <nav className="flex items-center gap-8 px-8 ml-auto">
         <a
-          href="#home"
+          href="/#home"
           className="text-sm font-medium text-gray-800 hover:text-black hover:underline"
         >
           Home
         </a>
         <a
-          href="#about"
+          href="/#about"
           className="text-sm font-medium text-gray-800 hover:text-black hover:underline"
         >
           About
         </a>
         <a
-          href="#features"
+          href="/#features"
           className="text-sm font-medium text-gray-800 hover:text-black hover:underline"
         >
           Features
         </a>
         <a
-          href="#contact"
+          href="/#contact"
           className="text-sm font-medium text-gray-800 hover:text-black hover:underline"
         >
           Contact

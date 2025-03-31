@@ -9,11 +9,10 @@ function AuthLayout({children, authRequired = true}) {
   const navigate = useNavigate();
 
   useEffect(() => {
-    if(authRequired && isAuthenticated !== authRequired) {
-      navigate('/login');
-    }
-    else {
-      navigate('/');
+    if (authRequired && isAuthenticated !== authRequired) {
+      navigate("/login");
+    } else if (!authRequired && isAuthenticated !== authRequired) {
+      navigate("/");
     }
     setLoading(false);
   }, [navigate, isAuthenticated, authRequired])

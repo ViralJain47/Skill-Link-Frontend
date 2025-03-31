@@ -63,7 +63,7 @@ function HeroSection() {
         <img
           src={heroImage}
           alt="Person learning online"
-          className="max-w-full h-auto"
+          className="w-xl"
         />
       </div>
       {/* Add the speech bubble tail */}

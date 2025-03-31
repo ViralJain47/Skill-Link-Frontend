@@ -3,6 +3,7 @@ import { motion, useInView, useScroll, useTransform } from "framer-motion";
 import Rocket from '../assets/rocket.png'; // Assuming you have this asset
 import { FaLightbulb, FaHandsHelping, FaBook, FaRocket } from "react-icons/fa";
 import { Link } from "react-router-dom";
+import AboutUsImage from '../assets/aboutus.jpeg'
 
 function AboutUs() {
   const { scrollYProgress } = useScroll();
@@ -51,7 +52,7 @@ function AboutUs() {
       <motion.div
         ref={section1Ref}
         className="w-full flex min-h-screen justify-around items-center px-4 md:px-20 py-20 md:py-40 relative"
-        style={{ opacity: scrollOpacity }}
+        style={{ opacity: 1 }}
         initial="hidden"
         animate={section1InView ? "visible" : "hidden"}
         variants={staggerContainer}
@@ -112,7 +113,7 @@ function AboutUs() {
         >
           <motion.img
             className="rounded-2xl shadow-2xl"
-            src="https://images.unsplash.com/photo-1455849318743-b2233052fcff?w=500&auto=format&fit=crop&q=60&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxzZWFyY2h8MTV8fGFib3V0JTIwdXN8ZW58MHx8MHx8fDA%3D"
+            src={AboutUsImage}
             alt="Collaborative learning"
             animate={{
               boxShadow: ["0px 0px 0px rgba(0,0,0,0.2)", "0px 10px 30px rgba(0,0,0,0.3)", "0px 0px 0px rgba(0,0,0,0.2)"]

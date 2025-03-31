@@ -1,22 +1,46 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import usePostData from '../hooks/usePostData';
+import ButtonLoader from './Loaders/ButtonLoader';
 
 function SignUp() {
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  
-  const handleSubmit = (e) => {
+  const [message,setMessage] = useState('');
+
+  const [error, setError] = useState('');
+  const [loading, setLoading] = useState(false)
+
+  const handleSubmit = async (e) => {
     e.preventDefault();
+    setLoading(true);
+    const user = {
+      name, email, password
+    }
+    console.log(user);
+
+    const status = await usePostData(`${import.meta.env.VITE_API_ROUTE}/api/auth/register`, setMessage, user);
+
+    setLoading(false);
+    
+    console.log(message);
+
     
   };
 
   const navigate = useNavigate();
   
   return (
-    <form onSubmit={handleSubmit} className="w-120 h-120 p-6 bg-white shadow-lg rounded-lg">
-      <h2 className="text-2xl font-semibold text-center mb-6 text-[#FF5722]">Sign Up</h2>
-      
+    
+     <div className="flex justify-center items-center">
+     <div className="w-1/2 min-h-screen flex justify-center items-center">
+      <img src="https://img.freepik.com/premium-vector/vector-illustration-about-concept-mobile-app-account-successfully-registered-successful-login_675567-6141.jpg?ga=GA1.1.1425286223.1739288370&semt=ais_hybrid" alt="" />
+     </div>
+     <div className="w-1/2">
+     <form onSubmit={handleSubmit} className="max-w-lg min-h-7/12 mx-auto p-10 bg-white shadow-lg rounded-lg">
+      <h2 className="text-3xl font-semibold text-center mb-6 text-[#FF5722]">Sign Up</h2>
+      {error && <div>{error}</div>}
       <div className="mb-4">
         <label htmlFor="name" className="block text-sm font-semibold">
           Full Name
@@ -25,7 +49,7 @@ function SignUp() {
           type="text"
           id="name"
           name="name"
-          className="w-full p-2 border border-gray-300 rounded-md"
+          className="w-full px-4 py-2 mt-2 border border-gray-300 rounded-md"
           placeholder="Enter your full name"
           value={name}
           onChange={(e) => setName(e.target.value)}
@@ -41,7 +65,7 @@ function SignUp() {
           type="email"
           id="email"
           name="email"
-          className="w-full p-2 border border-gray-300 rounded-md"
+          className="w-full px-4 py-2 mt-2 border border-gray-300 rounded-md"
           placeholder="Enter your email"
           value={email}
           onChange={(e) => setEmail(e.target.value)}
@@ -57,7 +81,7 @@ function SignUp() {
           type="password"
           id="password"
           name="password"
-          className="w-full p-2 border border-gray-300 rounded-md"
+          className="w-full px-4 py-2 mt-2 border border-gray-300 rounded-md"
           placeholder="Enter your password"
           value={password}
           onChange={(e) => setPassword(e.target.value)}
@@ -67,9 +91,9 @@ function SignUp() {
       
       <button
         type="submit"
-        className="w-full bg-[#FF5722] hover:bg-[#FF7043] text-white p-2 rounded-md mt-4"
+        className="w-full bg-[#FF5722] hover:bg-[#FF7043] text-white px-4 py-3 rounded-lg mt-4"
       >
-        Sign Up
+        {loading ? <ButtonLoader /> : "Sign Up"}
       </button>
       
       {/* Back to Login Link */}
@@ -83,6 +107,9 @@ function SignUp() {
         </button>
       </div>
     </form>
+     </div>
+   </div>
+
   );
 }
 
