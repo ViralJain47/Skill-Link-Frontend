@@ -36,7 +36,7 @@ function HeroSection() {
   }, []);
 
   return (
-    <div
+    <section id="home"
       className="relative grid grid-cols-2 justify-between items-center px-8 py-16 pt-4 gap-10 min-h-160 align-middle"
       style={{
         backgroundColor: "#FFCCCC", 
@@ -51,7 +51,7 @@ function HeroSection() {
           knowledge, master new skills, and build meaningful connections.
         </p>
         <Link
-          to="/get-started"
+          to="/register"
           className="inline-block bg-amber-400 text-black py-3 px-8 rounded-full font-medium transition-colors duration-300 hover:bg-amber-500 mt-8 border"
         >
           Get Started
@@ -75,7 +75,7 @@ function HeroSection() {
           ></path>
         </svg>
       </div>
-    </div>
+    </section>
   );
 }
 
