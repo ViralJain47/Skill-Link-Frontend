@@ -48,7 +48,7 @@ function App() {
         dispatch(logout());
       })
       .finally(() => {
-        const randomDelay = Math.floor(Math.random() * (1000 - 400 + 1)) + 400; // Random delay between 400ms - 1000ms
+        const randomDelay = Math.floor(Math.random() * (1400 - 1000 + 1)) + 1000; // Random delay between 400ms - 1000ms
         setTimeout(() => setLoading(false), randomDelay);
       });
   }, [dispatch]);
