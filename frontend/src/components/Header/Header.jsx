@@ -1,7 +1,8 @@
-import { Link } from "react-router-dom"
+import { Link, useNavigate } from "react-router-dom"
 import Button from "../Button"
 
 function Header() {
+  const navigate = useNavigate();
   return (
     <header className="w-full py-4 px-6 md:px-12 lg:px-24 flex items-center justify-between border-b border-neutral-400" style={{ backgroundColor: "#FFCCCC" }}>
       <div className="flex items-center gap-2">
@@ -32,9 +33,9 @@ function Header() {
       </nav>
 
       <div className="flex items-center gap-4">
-        <Link to="/" className="text-sm font-medium hover:border-black border border-transparent px-4 py-2 rounded-xl duration-200">
+        <button onClick={() => navigate('/login')} className="text-sm font-medium hover:border-black border border-transparent px-4 py-2 rounded-xl duration-200">
           Log In
-        </Link>
+        </button>
         <Button className="bg-amber-500 border hover:bg-amber-600 text-black font-normal rounded-xl px-1.5-2.5">Register</Button>
       </div>
     </header>

@@ -4,10 +4,17 @@ import './index.css'
 import App from './App.jsx'
 import { createBrowserRouter, RouterProvider } from 'react-router-dom'
 import store from './store/store.js'
+import Login from './components/Login.jsx'
 
 const router = createBrowserRouter([{
   path:'/',
-  element:<App />
+  element:<App />,
+  children: [
+    {
+      path:'/login',
+      element : <Login />,
+    },
+  ]
 }])
 
 createRoot(document.getElementById('root')).render(

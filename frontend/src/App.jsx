@@ -1,3 +1,4 @@
+import { Outlet } from 'react-router-dom'
 import './App.css'
 import AboutUs from './components/AboutUs'
 import ContactUs from './components/ContactUs'
@@ -11,6 +12,7 @@ function App() {
     <Header />
     <div className='flex flex-col'>
     <HeroSection />
+    <Outlet />
     <AboutUs />
     <ContactUs />
     </div>
