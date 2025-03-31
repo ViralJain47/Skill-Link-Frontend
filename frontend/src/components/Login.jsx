@@ -1,84 +1,128 @@
 import React, { useState } from "react";
 import Button from "./Button";
 import { useNavigate } from "react-router-dom";
+import ButtonLoader from "./Loaders/ButtonLoader";
+import usePostData from "../hooks/usePostData";
+import Otp from "./Otp";
 
 function Login() {
   const [error, setError] = useState("");
+  const [otp, setOtp] = useState(false);
+  const [userId, setUserId] = useState("");
+  const [userData, setUserData] = useState({
+    email: "",
+    password: "",
+  });
 
-  const handleLogin = (e) => {
+  const [loading, setLoading] = useState(false);
+
+  const handleLogin = async (e) => {
     e.preventDefault();
     setError("");
+    setLoading(true);
+
+    const res = await usePostData(
+      `${import.meta.env.VITE_API_ROUTE}/api/auth/login`,
+      setError,
+      userData
+    );
+
+    setLoading(false);
+    if(res) setUserId(res.userId);
+    if (res.message === "OTP sent Successfully") setOtp(true);
+
+    console.log(res);
   };
 
   const navigate = useNavigate();
 
   return (
-    <div className="flex justify-center items-center">
-      <div className="w-1/2">
-        <form
-          onSubmit={handleLogin}
-          className="max-w-lg min-h-7/12 mx-auto p-10 bg-white shadow-lg rounded-lg"
-        >
-          <h2 className="text-3xl font-semibold text-center mb-6 text-[#FF5722]">
-            Login
-          </h2>
-          {error && <p className="text-red-500 text-center mb-4">{error}</p>}
-          <div className="mb-4">
-            <label
-              htmlFor="username"
-              className="block text-sm font-semibold py-3"
-            >
-              Email
-            </label>
-            <input
-              type="email"
-              id="email"
-              name="email"
-              className="w-full px-4 py-2 mt-2 border border-gray-300 rounded-md focus:border-[#FF5722]"
-              placeholder="Enter your email"
-              required
-            />
-          </div>
-
-          <div className="mb-4">
-            <label
-              htmlFor="password"
-              className="block text-sm font-semibold py-3"
-            >
-              Password
-            </label>
-            <input
-              type="password"
-              id="password"
-              name="password"
-              className="w-full px-4 py-2 mt-2 border border-gray-300 rounded-md focus:border-[#FF5722]"
-              placeholder="Enter your password"
-              required
-            />
-          </div>
-
-          <Button
-            type="submit"
-            className="w-full bg-[#FF5722] hover:bg-[#FF7043] text-white p-2 rounded-md mt-4"
+    <>
+      {otp ? <Otp userId={userId} /> : (
+      <div className="flex justify-center items-center">
+        <div className="w-1/2">
+          <form
+            onSubmit={handleLogin}
+            className="max-w-lg min-h-7/12 mx-auto p-10 bg-white shadow-lg rounded-lg"
           >
-            Login
-          </Button>
+            <h2 className="text-3xl font-semibold text-center mb-6 text-[#FF5722]">
+              Login
+            </h2>
+            {error && <p className="text-red-500 text-center mb-4">{error}</p>}
+            <div className="mb-4">
+              <label
+                htmlFor="username"
+                className="block text-sm font-semibold py-3"
+              >
+                Email
+              </label>
+              <input
+                type="email"
+                id="email"
+                name="email"
+                className="w-full px-4 py-2 mt-2 border border-gray-300 rounded-md focus:border-[#FF5722]"
+                placeholder="Enter your email"
+                value={userData.email}
+                onChange={(e) => {
+                  setUserData((prev) => ({
+                    ...userData,
+                    email: e.target.value,
+                  }));
+                }}
+                required
+              />
+            </div>
 
-          <div className="mt-4 text-center">
-            <button
-              type="button"
-              onClick={() => navigate("/register")}
-              className="text-[#E91E63] text-sm hover:underline"
+            <div className="mb-4">
+              <label
+                htmlFor="password"
+                className="block text-sm font-semibold py-3"
+              >
+                Password
+              </label>
+              <input
+                type="password"
+                id="password"
+                name="password"
+                className="w-full px-4 py-2 mt-2 border border-gray-300 rounded-md focus:border-[#FF5722]"
+                placeholder="Enter your password"
+                value={userData.password}
+                onChange={(e) => {
+                  setUserData((prev) => ({
+                    ...userData,
+                    password: e.target.value,
+                  }));
+                }}
+                required
+              />
+            </div>
+
+            <Button
+              type="submit"
+              className="w-full bg-[#FF5722] hover:bg-[#FF7043] text-white p-2 rounded-md mt-4"
             >
-              Don't have an account? Register
-            </button>
-          </div>
-        </form>
+              {loading ? <ButtonLoader /> : "Login"}
+            </Button>
+
+            <div className="mt-4 text-center">
+              <button
+                type="button"
+                onClick={() => navigate("/register")}
+                className="text-[#E91E63] text-sm hover:underline"
+              >
+                Don't have an account? Register
+              </button>
+            </div>
+          </form>
+        </div>
+        <div className="w-1/2 min-h-screen flex justify-center items-center">
+          <img
+            src="https://img.freepik.com/free-vector/tablet-login-concept-illustration_114360-7863.jpg?ga=GA1.1.1425286223.1739288370&semt=ais_hybrid"
+            alt=""
+          />
+        </div>
       </div>
-      <div className="w-1/2 min-h-screen flex justify-center items-center">
-        <img src="https://img.freepik.com/free-vector/tablet-login-concept-illustration_114360-7863.jpg?ga=GA1.1.1425286223.1739288370&semt=ais_hybrid" alt="" />
-      </div>
-    </div>
+)}    </>
   );
 }
 

@@ -2,15 +2,18 @@ import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import usePostData from '../hooks/usePostData';
 import ButtonLoader from './Loaders/ButtonLoader';
+import useFetchData from '../hooks/useFetchData';
 
 function SignUp() {
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [message,setMessage] = useState('');
-
+  
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false)
+  
+  const navigate = useNavigate();
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -23,13 +26,18 @@ function SignUp() {
     const status = await usePostData(`${import.meta.env.VITE_API_ROUTE}/api/auth/register`, setMessage, user);
 
     setLoading(false);
+
+    if(status.message ==  "User registered successfully") {
+      navigate('/login')
+    } else {
+      setError(message);
+    }
     
     console.log(message);
 
     
   };
 
-  const navigate = useNavigate();
   
   return (
     
@@ -40,7 +48,7 @@ function SignUp() {
      <div className="w-1/2">
      <form onSubmit={handleSubmit} className="max-w-lg min-h-7/12 mx-auto p-10 bg-white shadow-lg rounded-lg">
       <h2 className="text-3xl font-semibold text-center mb-6 text-[#FF5722]">Sign Up</h2>
-      {error && <div>{error}</div>}
+      {error && <div className='text-xl text-red-500 my-4'>{error}</div>}
       <div className="mb-4">
         <label htmlFor="name" className="block text-sm font-semibold">
           Full Name

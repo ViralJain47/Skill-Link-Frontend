@@ -4,7 +4,7 @@ const usePostData = async (apiRoute, setData, postData) => {
   },});
   const body = await res.json();
   setData(body.message);
-  return res.status;
+  return body;
 }
 
 export default usePostData;

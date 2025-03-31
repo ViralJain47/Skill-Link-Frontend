@@ -51,7 +51,6 @@ const MainLoader = ({ isLoading }) => {
   };
 
   // If not loading, don't render anything
-  if (!isLoading) return null;
 
   return (
     <motion.div

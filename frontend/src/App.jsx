@@ -8,15 +8,50 @@ import Header from "./components/Header/Header";
 import HeroSection from "./components/HeroSection";
 import Dashboard from "./components/Dashboard";
 import AuthLayout from "./components/AuthLayout";
-import { useSelector } from "react-redux";
-import { useState } from "react";
+import { useDispatch, useSelector } from "react-redux";
+import { useEffect, useState } from "react";
 import MainLoader from "./components/Loaders/MainLoader";
 import Sidebar from "./components/Sidebar";
 import UtilityBar from "./components/UtilityBar";
+import useFetchData from "./hooks/useFetchData";
+import {login, logout} from './store/authSlice'
+
 
 function App() {
   const isAuthenticated = useSelector((state) => state.auth.status);
-  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState('');
+  const [loading, setLoading] = useState(true);
+  const dispatch = useDispatch();
+
+  useEffect(() => {
+    setLoading(true);
+    const token = localStorage.getItem('token');
+  
+    if (!token) {
+      dispatch(logout());
+      setLoading(false);
+      return;
+    }
+  
+    useFetchData(`${import.meta.env.VITE_API_ROUTE}/api/auth/me`, token)
+      .then((userData) => {
+        if (userData?.name) {
+          dispatch(login({...userData}));
+        } else {
+          console.log(userData.error);
+          setError(userData.error);
+          dispatch(logout());
+        }
+      })
+      .catch(error => {
+        console.log(error);
+        dispatch(logout());
+      })
+      .finally(() => {
+        const randomDelay = Math.floor(Math.random() * (1000 - 400 + 1)) + 400; // Random delay between 400ms - 1000ms
+        setTimeout(() => setLoading(false), randomDelay);
+      });
+  }, [dispatch]);
 
   if (loading) return <MainLoader />;
 
@@ -34,7 +69,7 @@ function App() {
     <>
       <div className="flex">
         <Sidebar className={"min-h-screen fixed bg-amber-200"} />
-        <div className="flex flex-col">
+        <div className="flex flex-col w-full">
           <UtilityBar />
           <Outlet />
         </div>
