@@ -37,7 +37,7 @@ function HeroSection() {
 
   return (
     <section id="home"
-      className="relative grid grid-cols-2 justify-between items-center px-8 py-16 pt-4 gap-10 min-h-160 align-middle"
+      className="relative grid grid-cols-2 justify-between items-center px-8 pb-25 pt-30 gap-10 align-middle"
       style={{
         backgroundColor: "#FFCCCC", 
       }}
