@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 
-function SignUp({ setIsLogin }) {
+function SignUp() {
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -9,6 +10,8 @@ function SignUp({ setIsLogin }) {
     e.preventDefault();
     
   };
+
+  const navigate = useNavigate();
   
   return (
     <form onSubmit={handleSubmit} className="w-120 h-120 p-6 bg-white shadow-lg rounded-lg">
@@ -73,7 +76,7 @@ function SignUp({ setIsLogin }) {
       <div className="mt-4 text-center">
         <button
           type="button"
-          onClick={() => setIsLogin(true)} // Switch to login form
+          onClick={() => navigate('/login')} // Switch to login form
           className="text-[#E91E63] text-sm hover:underline"
         >
           Already have an account? Login

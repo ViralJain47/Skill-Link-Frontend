@@ -7,20 +7,15 @@ import Footer from './components/Footer/Footer'
 import Header from './components/Header/Header'
 import HeroSection from './components/HeroSection'
 import Dashboard from './components/Dashboard'
+import AuthLayout from './components/AuthLayout'
+import { useSelector } from 'react-redux'
 
 function App() {
+  const isAuthenticated = useSelector((state) => state.auth.status);
+
   return (
     <>
-    {/* <Header />
-    <div className='flex flex-col'>
-    <HeroSection />
-    <Outlet />
-    <AboutUs />
-    <Features />
-    <ContactUs />
-    </div>
-    <Footer /> */}
-    <Dashboard />
+      
     </>
   )
 }

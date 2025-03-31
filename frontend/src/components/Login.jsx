@@ -2,16 +2,17 @@ import React, { useState } from 'react';
 import loginImage from '../assets/login.png';
 import Button from './Button';
 import SignUp from './SignUp';
+import { useNavigate } from 'react-router-dom';
 
 function Login() {
   const [error, setError] = useState("");
-  const [isLogin, setIsLogin] = useState(true); 
 
   const handleLogin = (e) => {
     e.preventDefault();
     setError("");
-    
   };
+
+  const navigate = useNavigate();
 
   return (
     <div className="relative h-screen bg-white">
@@ -63,7 +64,7 @@ function Login() {
               <div className="mt-4 text-center">
                 <button
                   type="button"
-                  onClick={() => setIsLogin(false)} 
+                  onClick={() => navigate('/register')} 
                   className="text-[#E91E63] text-sm hover:underline"
                 >
                   Don't have an account? Register
