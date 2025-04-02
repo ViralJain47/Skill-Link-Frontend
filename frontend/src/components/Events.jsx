@@ -3,7 +3,7 @@ import React from 'react'
 function Events() {
   return (
     <div>
-      Vanshu DCP
+      Events Tab
     </div>
   )
 }

@@ -3,7 +3,7 @@ import React from 'react'
 function Settings() {
   return (
     <div>
-      Settings Here
+      Settings Tab
     </div>
   )
 }
