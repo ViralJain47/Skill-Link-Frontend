@@ -1,20 +1,10 @@
 import { Outlet } from "react-router-dom";
 import "./App.css";
-import AboutUs from "./components/AboutUs";
-import ContactUs from "./components/ContactUs";
-import Features from "./components/Features";
-import Footer from "./components/Footer/Footer";
-import Header from "./components/Header/Header";
-import HeroSection from "./components/HeroSection";
-import Dashboard from "./components/Dashboard";
-import AuthLayout from "./components/AuthLayout";
 import { useDispatch, useSelector } from "react-redux";
 import { useEffect, useState } from "react";
-import MainLoader from "./components/Loaders/MainLoader";
-import Sidebar from "./components/Sidebar";
-import UtilityBar from "./components/UtilityBar";
-import useFetchData from "./hooks/useFetchData";
 import {login, logout} from './store/authSlice'
+import { Footer, Header, MainLoader, Sidebar, UtilityBar } from "./components";
+import useGetRequest from "./hooks/useGetRequest";
 
 
 function App() {
@@ -33,7 +23,7 @@ function App() {
       return;
     }
   
-    useFetchData(`${import.meta.env.VITE_API_ROUTE}/api/auth/me`, token)
+    useGetRequest(`${import.meta.env.VITE_API_ROUTE}/api/auth/me`, {Authorization: `Bearer ${token}`})
       .then((userData) => {
         if (userData?.name) {
           dispatch(login({...userData}));

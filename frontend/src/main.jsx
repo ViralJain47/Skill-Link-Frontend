@@ -5,18 +5,8 @@ import App from "./App.jsx";
 import { createBrowserRouter, RouterProvider } from "react-router-dom";
 import store from "./store/store.js";
 import { Provider } from "react-redux";
-import AuthLayout from "./components/AuthLayout.jsx";
-import SignUpPage from "./pages/SignUpPage.jsx";
-import LoginPage from "./pages/LoginPage.jsx";
-import Home from "./pages/Home.jsx";
-import MySkills from "./components/MySkills.jsx";
-import Sessions from "./components/Sessions.jsx";
-import Events from "./components/Events.jsx";
-import Resources from "./components/Resources.jsx";
-import Community from "./components/Community.jsx";
-import Messages from "./components/Messages.jsx";
-import Settings from "./components/Settings.jsx";
-
+import { HomePage, LoginPage, SignUpPage } from './pages'
+import { Messages, MySkills, Resources, Sessions, Settings, AuthLayout, Events, Community } from './components';
 
 const router = createBrowserRouter([
   {
@@ -25,7 +15,7 @@ const router = createBrowserRouter([
     children: [
       {
         path: "",
-        element: <Home />
+        element: <HomePage />
       },
       {
         path: "login",
