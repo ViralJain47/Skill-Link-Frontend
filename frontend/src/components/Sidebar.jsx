@@ -22,7 +22,7 @@ function Sidebar({className}) {
                 activeTab === item.name ? 'bg-amber-50 text-amber-700 border-r-4 border-amber-500' : 'text-gray-500 hover:bg-amber-50'
               }`}
             >
-              <span className="ml-2 capitalize">{item.name}</span>
+              <span className="ml-2 capitalize">{item.name}</span>           
             </button>
           ))}
         </nav>
