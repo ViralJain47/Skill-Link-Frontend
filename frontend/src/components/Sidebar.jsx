@@ -6,7 +6,7 @@ function Sidebar({className}) {
   const navigate = useNavigate();
 
   return (
-    <div className="w-64 bg-white shadow-md relative h-screen">
+    <div className="w-64 bg-white shadow-md relative">
         <div className="p-6">
           <h1 className="text-2xl font-bold text-amber-400">SkillLink</h1>
         </div>
