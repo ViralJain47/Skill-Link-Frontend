@@ -56,16 +56,16 @@ function App() {
   }
 
   return (
-    <>
-      <div className="flex">
-        <Sidebar className={"min-h-screen fixed bg-amber-200"} />
-        <div className="flex flex-col w-full">
+    <div className="min-h-screen flex-col flex justify-between">
+      <div className="flex ">
+        <Sidebar />
+        <div className="flex flex-col w-full h-full">
           <UtilityBar />
           <Outlet />
         </div>
       </div>
       <Footer />
-    </>
+    </div>
   );
 }
 

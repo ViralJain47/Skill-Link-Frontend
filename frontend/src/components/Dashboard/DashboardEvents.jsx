@@ -44,8 +44,10 @@ function DashboardEvents() {
   const fetchEvents = async () => {
     setLoading(true);
     try {
-      const response = await axios.get(import.meta.env.VITE_API_URL+'/api/event/all');
-      setEvents(response.data.events);
+      console.log(`${import.meta.env.VITE_API_ROUTE}/api/event/all`);  
+      const response = await axios.get(`${import.meta.env.VITE_API_ROUTE}/api/event/all`);
+      console.log(response);
+      setEvents(response.data);
       setError(null);
     } catch (err) {
       setError('Failed to fetch events. Please try again later.');
@@ -58,7 +60,7 @@ function DashboardEvents() {
   // Create a new event
   const handleCreateEvent = async (eventData) => {
     try {
-      await axios.post(import.meta.env.VITE_API_URL+'/api/event/create', eventData);
+      await axios.post(import.meta.env.VITE_API_ROUTE+'/api/event/create', eventData);
       fetchEvents();
       setShowModal(false);
     } catch (err) {
@@ -70,7 +72,7 @@ function DashboardEvents() {
   // Update an existing event
   const handleUpdateEvent = async (eventData) => {
     try {
-      await axios.put(`${import.meta.env.VITE_API_URL}/api/event/update/${eventData._id}`, eventData);
+      await axios.put(`${import.meta.env.VITE_API_ROUTE}/api/event/update/${eventData._id}`, eventData);
       fetchEvents();
       setShowModal(false);
     } catch (err) {
@@ -83,7 +85,7 @@ function DashboardEvents() {
   const handleDeleteEvent = async (eventId) => {
     if (window.confirm('Are you sure you want to delete this event?')) {
       try {
-        await axios.delete(`${import.meta.env.VITE_API_URL}/api/event/delete/${eventId}`);
+        await axios.delete(`${import.meta.env.VITE_API_ROUTE}/api/event/delete/${eventId}`);
         fetchEvents();
       } catch (err) {
         setError('Failed to delete event. Please try again.');
@@ -190,7 +192,7 @@ function DashboardEvents() {
         ) : (
           <>
             {/* Events Grid */}
-            {events.length > 0 ? (
+            {events && events.length > 0 ? (
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
                 {events.map((event) => (
                   <motion.div 
