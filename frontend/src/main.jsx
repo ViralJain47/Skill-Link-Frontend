@@ -16,6 +16,7 @@ import Resources from "./components/Resources.jsx";
 import Community from "./components/Community.jsx";
 import Messages from "./components/Messages.jsx";
 import Settings from "./components/Settings.jsx";
+import EventsPage from "./pages/EventsPage.jsx";
 
 
 const router = createBrowserRouter([
@@ -49,7 +50,7 @@ const router = createBrowserRouter([
       },
       {
         path: "events",
-        element: <AuthLayout children={<Events />} authRequired={true} />,
+        element: <AuthLayout children={<EventsPage />} authRequired={true} />,
       },
       {
         path: "resources",
