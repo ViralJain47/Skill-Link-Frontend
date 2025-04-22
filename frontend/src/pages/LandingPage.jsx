@@ -1,8 +1,5 @@
 import React from "react";
-import HeroSection from "../components/HeroSection";
-import AboutUs from "../components/AboutUs";
-import Features from "../components/Features";
-import ContactUs from "../components/ContactUs";
+import { AboutUs, ContactUs, Features, HeroSection } from "../components";
 
 function LandingPage() {
   return (

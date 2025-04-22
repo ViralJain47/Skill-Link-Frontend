@@ -19,6 +19,7 @@ import Settings from "./components/Settings.jsx";
 import EventsPage from "./pages/EventsPage.jsx";
 
 
+
 const router = createBrowserRouter([
   {
     path: "/",
@@ -26,7 +27,7 @@ const router = createBrowserRouter([
     children: [
       {
         path: "",
-        element: <Home />
+        element: <HomePage />
       },
       {
         path: "login",
