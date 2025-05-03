@@ -23,7 +23,7 @@ function App() {
       return;
     }
   
-    useGetRequest(`${import.meta.env.VITE_API_ROUTE}/api/auth/me`, {Authorization: `Bearer ${token}`})
+    useGetRequest(`${import.meta.env.VITE_API_URL}/api/auth/me`, {Authorization: `Bearer ${token}`})
       .then((userData) => {
         if (userData?.name) {
           dispatch(login({...userData}));
@@ -57,6 +57,7 @@ function App() {
 
   return (
     <>
+    <div className="w-full min-h-screen flex flex-col">
       <div className="flex">
         <Sidebar className={"min-h-screen fixed bg-amber-200"} />
         <div className="flex flex-col w-full">
@@ -65,6 +66,7 @@ function App() {
         </div>
       </div>
       <Footer />
+      </div>
     </>
   );
 }

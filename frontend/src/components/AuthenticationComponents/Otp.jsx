@@ -88,9 +88,8 @@ function Otp({ userId }) {
         const token = localStorage.getItem("token");
 
         const userData = await getUserData(token);
-
         if (userData?.name) {
-          dispatch(login({ ...userData }));
+          dispatch(login(userData));
           navigate("/"); 
         } else {
           setError("Incorrect OTP");

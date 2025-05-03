@@ -17,7 +17,6 @@ function AuthLayout({children, authRequired = true}) {
     setLoading(false);
   }, [navigate, isAuthenticated, authRequired])
 
-  console.log(isAuthenticated);
 
   return ( !loading ?
     <div className='w-full'>
