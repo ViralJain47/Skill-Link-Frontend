@@ -3,6 +3,7 @@ import { useNavigate } from "react-router-dom";
 import { useDispatch } from "react-redux";
 import { login } from "../../store/authSlice";
 import { getUserData, verifyOtp } from "../../features/auth";
+import { toast } from "react-toastify";
 
 function Otp({ userId }) {
   const [otp, setOtp] = useState(["", "", "", "", "", ""]);
@@ -89,6 +90,16 @@ function Otp({ userId }) {
 
         const userData = await getUserData(token);
         if (userData?.name) {
+          toast.success("Login successful", {
+            position: "top-right",
+            autoClose: 5000,
+            hideProgressBar: false,
+            closeOnClick: false,
+            pauseOnHover: true,
+            draggable: true,
+            progress: undefined,
+            theme: "light",
+          });
           dispatch(login(userData));
           navigate("/"); 
         } else {
@@ -108,6 +119,16 @@ function Otp({ userId }) {
     } finally {
       setIsSubmitting(false);
     }
+    if(error) toast.error(error, {
+      position: "top-right",
+      autoClose: 5000,
+      hideProgressBar: false,
+      closeOnClick: false,
+      pauseOnHover: true,
+      draggable: true,
+      progress: undefined,
+      theme: "light",
+    });
   };
 
   useEffect(() => {
@@ -158,16 +179,6 @@ function Otp({ userId }) {
             </p>
           )}
         </div>
-
-        {error && (
-          <div className="mb-6 p-3 bg-red-50 border-l-4 border-red-500 text-red-700 text-sm rounded">
-            {error === "Incorrect OTP" ? (
-              <p>Incorrect OTP. Please try again.</p>
-            ) : (
-              <p>{error}</p>
-            )}
-          </div>
-        )}
 
         <form onSubmit={handleSubmit} className="mb-6" onPaste={handlePaste}>
           <div className="flex justify-between mb-8">

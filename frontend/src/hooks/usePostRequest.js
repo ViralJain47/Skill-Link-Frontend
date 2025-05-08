@@ -5,13 +5,10 @@ const usePostRequest = async (apiRoute, data, header) => {
       body: JSON.stringify(data),
       headers: header,
     });
-    if (res.ok) {
+    
       const body = await res.json();
-      if (body) {
-        return body;
-      } else throw error;
-    } else throw error;
-  } catch (error) {
+      return body;
+    } catch (error) {
     return { error };
   }
 };

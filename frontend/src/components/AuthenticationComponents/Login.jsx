@@ -2,7 +2,7 @@ import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { Otp, Button, ButtonLoader } from "../";
 import { login } from "../../features/auth";
-
+import { toast } from "react-toastify";
 
 function Login() {
   const [error, setError] = useState("");
@@ -23,11 +23,33 @@ function Login() {
     const body = await login(userData);
     console.log(body);
 
-    if(body?.error && body) setError(body.error.TypeError);
+    if (body?.error && body) {
+      setError(body.error);
+      toast.error(body.error, {
+        position: "top-right",
+        autoClose: 5000,
+        hideProgressBar: false,
+        closeOnClick: false,
+        pauseOnHover: true,
+        draggable: true,
+        progress: undefined,
+        theme: "light",
+      });
+    }
     else {
+      toast.info("Please enter the 6 digit code sent.", {
+        position: "top-right",
+        autoClose: 5000,
+        hideProgressBar: false,
+        closeOnClick: false,
+        pauseOnHover: true,
+        draggable: true,
+        progress: undefined,
+        theme: "light",
+      });
       setUserId(body.userId);
-      setOtp(true)
-    };
+      setOtp(true);
+    }
     setLoading(false);
   };
 
@@ -47,9 +69,6 @@ function Login() {
               <h2 className="text-3xl font-semibold text-center mb-6 text-[#FF5722]">
                 Login
               </h2>
-              {error && (
-                <p className="text-red-500 text-center mb-4">{error}</p>
-              )}
               <div className="mb-4">
                 <label
                   htmlFor="username"
@@ -89,7 +108,7 @@ function Login() {
                   placeholder="Enter your password"
                   value={userData.password}
                   onChange={(e) => {
-                    setUserData((prev) => ({
+                    setUserData(() => ({
                       ...userData,
                       password: e.target.value,
                     }));
