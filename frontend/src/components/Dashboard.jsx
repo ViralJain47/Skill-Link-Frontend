@@ -1,7 +1,82 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
+import { Link } from "react-router-dom";
+import EventModal from "./Dashboard/EventModal";
+import { useSelector } from "react-redux";
+import axios from "axios";
+import { toast } from "react-toastify";
 
 const Dashboard = () => {
   // Sample data
+
+  const [error, setError] = useState("");
+  const [events, setEvents] = useState([]);
+  const [showModal, setShowModal] = useState(false);
+  const [currentEvent, setCurrentEvent] = useState(null);
+  const [modalMode, setModalMode] = useState("create"); // 'create' or 'edit'
+
+  const openCreateModal = () => {
+    setCurrentEvent(null);
+    setModalMode("create");
+    setShowModal(true);
+  };
+
+  useEffect(() => {
+    fetchEvents();
+  }, []);
+
+  const fetchEvents = async () => {
+    try {
+      const response = await axios.get(
+        import.meta.env.VITE_API_URL + "/api/event/all"
+      );
+      if (response?.data?.error) {
+        setError("Error during fetching events");
+        console.log(response.data.error);
+      } else {
+        console.log(response.data);
+        setEvents(response?.data);
+        setEvents((prev) => prev.filter((event) => event.host._id != user._id));
+        setEvents(prev => prev.slice(0, 3));
+        setError(null);
+      }
+    } catch (err) {
+      setError("Failed to fetch events. Please try again later.");
+      console.error(err);
+    }
+  };
+
+  const user = useSelector((state) => state.auth.userData);
+
+  const handleCreateEvent = async (eventData) => {
+    eventData.host = user._id;
+    try {
+      await axios.post(
+        import.meta.env.VITE_API_URL + "/api/event/create",
+        eventData
+      );
+      fetchEvents();
+      setShowModal(false);
+    } catch (err) {
+      setError("Failed to create event. Please try again.");
+      console.error(err);
+    }
+    if (error) toast.error(error);
+  };
+
+  const handleUpdateEvent = async (eventData) => {
+    try {
+      await axios.put(
+        `${import.meta.env.VITE_API_URL}/api/event/update/${eventData._id}`,
+        eventData
+      );
+      fetchEvents();
+      setShowModal(false);
+    } catch (err) {
+      setError("Failed to update event. Please try again.");
+      console.error(err);
+    }
+  };
+
   const skillMatches = [
     {
       id: 1,
@@ -26,33 +101,6 @@ const Dashboard = () => {
       skill: "Data Analysis",
       compatibility: 85,
       location: "In-person",
-    },
-  ];
-
-  const upcomingEvents = [
-    {
-      id: 1,
-      title: "Intro to MERN Stack",
-      date: "Apr 5, 2025",
-      time: "3:00 PM",
-      host: "Viral Jain",
-      participants: 12,
-    },
-    {
-      id: 2,
-      title: "UI/UX Design Workshop",
-      date: "Apr 8, 2025",
-      time: "5:30 PM",
-      host: "Yug Shrivastava",
-      participants: 8,
-    },
-    {
-      id: 3,
-      title: "Web Development Basics",
-      date: "Apr 12, 2025",
-      time: "4:00 PM",
-      host: "Vansh Dubey",
-      participants: 15,
     },
   ];
 
@@ -90,27 +138,37 @@ const Dashboard = () => {
             <button className="px-4 py-2 bg-gradient-to-r from-amber-500 to-orange-600 text-white rounded-md hover:from-amber-600 hover:to-orange-700 shadow-md transition duration-300">
               Add New Skill
             </button>
-            <button className="px-4 py-2 border border-amber-500 text-amber-600 rounded-md hover:bg-amber-50 transition duration-300">
-              Join Event
-            </button>
+            <Link to={"/events"}>
+              <button className="px-4 py-2 border border-amber-500 text-amber-600 rounded-md hover:bg-amber-50 transition duration-300">
+                Join Event
+              </button>
+            </Link>
           </div>
         </div>
 
         <div className="grid grid-cols-3 gap-6 mt-6">
-          <div className="bg-gradient-to-br from-amber-50 to-amber-50 p-4 rounded-xl border border-amber-200 shadow-sm hover:scale-105 duration-200">
-            <h3 className="font-medium text-amber-700">Skills I'm Learning</h3>
-            <p className="text-3xl font-bold mt-2 text-amber-800">4</p>
-            <div className="w-full h-1 bg-amber-200 mt-3 rounded-full">
-              <div className="w-3/4 h-1 bg-amber-500 rounded-full"></div>
+          <Link to={"/my-skills"}>
+            <div className="bg-gradient-to-br from-amber-50 to-amber-50 p-4 rounded-xl border border-amber-200 shadow-sm hover:scale-105 duration-200">
+              <h3 className="font-medium text-amber-700">
+                Skills I'm Learning
+              </h3>
+              <p className="text-3xl font-bold mt-2 text-amber-800">4</p>
+              <div className="w-full h-1 bg-amber-200 mt-3 rounded-full">
+                <div className="w-3/4 h-1 bg-amber-500 rounded-full"></div>
+              </div>
             </div>
-          </div>
-          <div className="bg-gradient-to-br from-orange-50 to-orange-100 p-4 rounded-xl border border-orange-200 shadow-sm hover:scale-105 duration-200">
-            <h3 className="font-medium text-orange-700">Skills I'm Teaching</h3>
-            <p className="text-3xl font-bold mt-2 text-orange-800">2</p>
-            <div className="w-full h-1 bg-orange-200 mt-3 rounded-full">
-              <div className="w-1/2 h-1 bg-orange-500 rounded-full"></div>
+          </Link>
+          <Link to={"my-skills"}>
+            <div className="bg-gradient-to-br from-orange-50 to-orange-100 p-4 rounded-xl border border-orange-200 shadow-sm hover:scale-105 duration-200">
+              <h3 className="font-medium text-orange-700">
+                Skills I'm Teaching
+              </h3>
+              <p className="text-3xl font-bold mt-2 text-orange-800">2</p>
+              <div className="w-full h-1 bg-orange-200 mt-3 rounded-full">
+                <div className="w-1/2 h-1 bg-orange-500 rounded-full"></div>
+              </div>
             </div>
-          </div>
+          </Link>
           <div className="bg-gradient-to-br from-rose-50 to-rose-100 p-4 rounded-xl border border-rose-200 shadow-sm hover:scale-105 duration-200">
             <h3 className="font-medium text-rose-700">Active Connections</h3>
             <p className="text-3xl font-bold mt-2 text-rose-800">7</p>
@@ -182,34 +240,39 @@ const Dashboard = () => {
             <h2 className="text-xl font-bold text-gray-800 flex items-center">
               <span className="text-amber-500 mr-2">📅</span> Upcoming Events
             </h2>
-            <button className="px-3 py-1 border border-amber-500 text-amber-600 text-sm rounded-md hover:bg-amber-50 transition duration-300">
+            <button
+              onClick={openCreateModal}
+              className="px-3 py-1 border border-amber-500 text-amber-600 text-sm rounded-md hover:bg-amber-50 transition duration-300"
+            >
               Create Event
             </button>
           </div>
 
           <div className="space-y-4">
-            {upcomingEvents.map((event) => (
+            {events.map((event) => (
               <div
-                key={event.id}
+                key={event._id}
                 className="p-4 border border-amber-100 rounded-lg hover:bg-amber-50 transition duration-300 hover:scale-102"
               >
                 <h3 className="font-medium text-amber-800">{event.title}</h3>
                 <div className="flex items-center mt-2 text-sm text-gray-600">
                   <span className="text-amber-500">📅</span>
-                  <span className="ml-1">{event.date}</span>
+                  <span className="ml-1">{event.date.slice(0, 10)}</span>
                   <span className="mx-2 text-amber-300">•</span>
                   <span className="text-amber-500">⏰</span>
-                  <span className="ml-1">{event.time}</span>
+                  <span className="ml-1">
+                    {event?.time || "abhi baaki hai bhai"}
+                  </span>
                   <span className="mx-2 text-amber-300">•</span>
                   <span className="text-amber-500">👥</span>
                   <span className="ml-1">
-                    {event.participants} participants
+                    {event.participants.length} participants
                   </span>
                 </div>
                 <div className="flex justify-between items-center mt-3">
                   <span className="text-sm text-gray-500">
                     Hosted by{" "}
-                    <span className="text-amber-700">{event.host}</span>
+                    <span className="text-amber-700">{event.host.name}</span>
                   </span>
                   <button className="px-3 py-1 bg-gradient-to-r from-amber-500 to-orange-600 text-white text-sm rounded-md hover:from-amber-600 hover:to-orange-700 shadow-sm transition duration-300">
                     RSVP
@@ -219,10 +282,23 @@ const Dashboard = () => {
             ))}
           </div>
 
-          <button className="mt-4 text-amber-600 font-medium hover:text-amber-800 flex items-center">
-            View all events <span className="ml-1">→</span>
-          </button>
+          <Link to={"/events"}>
+            <button className="mt-4 text-amber-600 font-medium hover:text-amber-800 flex items-center">
+              View all events <span className="ml-1">→</span>
+            </button>
+          </Link>
         </div>
+        {showModal && (
+          <EventModal
+            isOpen={showModal}
+            onClose={() => setShowModal(false)}
+            onSubmit={
+              modalMode === "create" ? handleCreateEvent : handleUpdateEvent
+            }
+            event={currentEvent}
+            mode={modalMode}
+          />
+        )}
       </div>
 
       {/* Recent Messages */}
