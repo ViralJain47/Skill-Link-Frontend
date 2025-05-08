@@ -79,7 +79,7 @@ function Settings() {
         aria-pressed={isOn}
       >
         {isOn ? (
-          <FaToggleOn className="text-amber-500-600 text-2xl" />
+          <FaToggleOn className="text-amber-500 text-2xl" />
         ) : (
           <FaToggleOff className="text-gray-400 text-2xl" />
         )}
@@ -90,7 +90,7 @@ function Settings() {
   return (
     <div className="bg-white rounded-lg shadow-sm p-6">
       <div className="flex items-center mb-6">
-        <FaCog className="text-blue-600 text-2xl mr-3" />
+        <FaCog className="text-amber-600 text-2xl mr-3" />
         <h1 className="text-2xl font-bold">Settings</h1>
       </div>
       
@@ -100,7 +100,7 @@ function Settings() {
           <button
             key={tab}
             className={`pb-4 px-6 relative whitespace-nowrap ${activeTab === tab 
-              ? "text-blue-600 font-medium border-b-2 border-blue-600" 
+              ? "text-amber-600 font-medium border-b-2 border-amber-600" 
               : "text-gray-500 hover:text-gray-700"}`}
             onClick={() => setActiveTab(tab)}
           >
@@ -158,12 +158,12 @@ function Settings() {
               </div>
             ))}
             <div className="p-4 bg-blue-50 rounded-lg">
-              <h3 className="font-medium text-blue-700 mb-2">Data Privacy</h3>
+              <h3 className="font-medium text-amber-500 mb-2">Data Privacy</h3>
               <p className="text-gray-700 mb-4">You can request a copy of your data or delete your account at any time.</p>
               <div className="flex gap-3">
                 <button 
                   type="button"
-                  className="border border-blue-600 text-blue-600 hover:bg-blue-50 px-4 py-2 rounded-md text-sm font-medium"
+                  className="border border-amber-500 text-amber-600 hover:bg-amber-50 px-4 py-2 rounded-md text-sm font-medium"
                 >
                   Request Data Copy
                 </button>
@@ -189,14 +189,14 @@ function Settings() {
                   <input
                     type="text"
                     defaultValue={field === "Full Name" ? "John Doe" : field === "Email Address" ? "john.doe@example.com" : "Computer Science"}
-                    className="border rounded-md px-3 py-2 w-full focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                    className="border rounded-md px-3 py-2 w-full focus:outline-none focus:ring-2 focus:ring-amber-500 focus:border-transparent"
                   />
                 </div>
               ))}
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1">Role</label>
                 <select
-                  className="border rounded-md px-3 py-2 w-full focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  className="border rounded-md px-3 py-2 w-full focus:outline-none focus:ring-2 focus:ring-amber-500 focus:border-transparent"
                 >
                   <option value="student">Student</option>
                   <option value="faculty">Faculty</option>
@@ -214,7 +214,7 @@ function Settings() {
                   <input
                     type="password"
                     placeholder={field}
-                    className="border rounded-md px-3 py-2 w-full focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                    className="border rounded-md px-3 py-2 w-full focus:outline-none focus:ring-2 focus:ring-amber-500 focus:border-transparent"
                   />
                 </div>
               ))}
@@ -249,7 +249,7 @@ function Settings() {
                   id="language"
                   value={language}
                   onChange={(e) => setLanguage(e.target.value)}
-                  className="border rounded-md px-3 py-2 w-full focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  className="border rounded-md px-3 py-2 w-full focus:outline-none focus:ring-2 focus:ring-amber-500 focus:border-transparent"
                 >
                   <option value="en-US">English (US)</option>
                   <option value="en-GB">English (UK)</option>
@@ -267,7 +267,7 @@ function Settings() {
                   id="timezone"
                   value={timeZone}
                   onChange={(e) => setTimeZone(e.target.value)}
-                  className="border rounded-md px-3 py-2 w-full focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  className="border rounded-md px-3 py-2 w-full focus:outline-none focus:ring-2 focus:ring-amber-500 focus:border-transparent"
                 >
                   <option value="America/New_York">Eastern Time (ET)</option>
                   <option value="America/Chicago">Central Time (CT)</option>
@@ -285,7 +285,7 @@ function Settings() {
                   id="dateFormat"
                   value={dateFormat}
                   onChange={(e) => setDateFormat(e.target.value)}
-                  className="border rounded-md px-3 py-2 w-full focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  className="border rounded-md px-3 py-2 w-full focus:outline-none focus:ring-2 focus:ring-amber-500 focus:border-transparent"
                 >
                   <option value="MM/DD/YYYY">MM/DD/YYYY</option>
                   <option value="DD/MM/YYYY">DD/MM/YYYY</option>
@@ -294,7 +294,7 @@ function Settings() {
               </div>
               
               <div className="flex items-center">
-                <div className="bg-blue-100 text-blue-800 text-xs p-2 rounded-md">
+                <div className="bg-amber-100 text-amber-500 text-xs p-2 rounded-md">
                   <FaCalendarAlt className="inline-block mr-1" />
                   Webinar times will be displayed in your local time zone.
                 </div>
@@ -307,7 +307,7 @@ function Settings() {
         <div className="flex justify-end mt-6">
           <button
             type="submit"
-            className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-md text-sm font-medium flex items-center gap-2"
+            className="bg-amber-600 hover:bg-amber-700 text-white px-4 py-2 rounded-md text-sm font-medium flex items-center gap-2"
           >
             <FaSave />
             <span>Save Settings</span>
