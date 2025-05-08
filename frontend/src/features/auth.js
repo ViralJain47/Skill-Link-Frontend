@@ -11,7 +11,6 @@ const register = async ({email, password, name}) => {
   const body = await usePostRequest(`${import.meta.env.VITE_API_URL}/api/auth/register`, {email, password, name}, {'Content-Type': 'application/json'});
   if(body?.error) return {error: body.error};
   else return body;
-
 }
 
 const verifyOtp = async (userId, otp) => {

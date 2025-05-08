@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { ButtonLoader } from '../';
 import { register } from '../../features/auth';
+import { toast } from 'react-toastify';
 
 function SignUp() {
   const [name, setName] = useState("");
@@ -34,6 +35,19 @@ function SignUp() {
     setLoading(false);
     console.log(message);
 
+    if(error) toast.error(body.error, {
+      position: "top-right",
+      autoClose: 5000,
+      hideProgressBar: false,
+      closeOnClick: false,
+      pauseOnHover: true,
+      draggable: true,
+      progress: undefined,
+      theme: "light",
+    });
+    else {
+      toast.success("Registered successfully.");
+    }
     
   };
 

@@ -16,6 +16,8 @@ import Community from "./components/Community.jsx";
 import Messages from "./components/Messages.jsx";
 import Settings from "./components/Settings.jsx";
 import EventsPage from "./pages/EventsPage.jsx";
+import CommunityRooms from "./components/CoummunityRooms.jsx";
+import CommunityPage from "./pages/CommunityPage.jsx";
 
 
 
@@ -58,7 +60,7 @@ const router = createBrowserRouter([
       },
       {
         path: "community",
-        element: <AuthLayout children={<Community />} authRequired={true} />,
+        element: <AuthLayout children={<CommunityPage />} authRequired={true} />,
       },
       {
         path: "settings",
