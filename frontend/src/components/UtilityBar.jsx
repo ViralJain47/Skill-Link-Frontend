@@ -1,17 +1,47 @@
-import React from "react";
-import {useDispatch} from "react-redux";
+import {React, useState, useRef, useEffect} from "react";
+import {useDispatch, useSelector} from "react-redux";
 import { logout } from "../store/authSlice";
 import {useNavigate} from "react-router-dom";
+import axios from "axios";
 
 function UtilityBar() {
   const dispatch = useDispatch();
   const navigate = useNavigate();
+  const userData = useSelector((state) => state.auth.userData);
 
   function handleLogout() {
     localStorage.setItem("token", "");
     dispatch(logout());
     navigate("/");
   }
+
+  const [isProfileMenuOpen, setIsProfileMenuOpen] = useState(false);
+  const profileMenuRef = useRef(null);
+  const userButtonRef = useRef(null);
+
+  // Handle clicks outside of the profile menu to close it
+  useEffect(() => {
+    function handleClickOutside(event) {
+      if (
+        profileMenuRef.current && 
+        !profileMenuRef.current.contains(event.target) &&
+        userButtonRef.current &&
+        !userButtonRef.current.contains(event.target)
+      ) {
+        setIsProfileMenuOpen(false);
+      }
+    }
+
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+    };
+  }, [profileMenuRef]);
+
+  // Toggle profile menu visibility
+  const toggleProfileMenu = () => {
+    setIsProfileMenuOpen(!isProfileMenuOpen);
+  };
 
   return (
     <header className="bg-white shadow-sm p-4">
@@ -40,9 +70,54 @@ function UtilityBar() {
               2
             </span>
           </button>
-          <div className="h-10 w-10 rounded-full bg-gradient-to-r from-amber-500 to-orange-600 flex items-center justify-center text-white shadow-md">
-            U
+          <div className="relative">
+            <button 
+              ref={userButtonRef}
+              className="h-10 w-10 rounded-full bg-gradient-to-r from-amber-500 to-orange-600 flex items-center justify-center text-white shadow-md"
+              onClick={toggleProfileMenu}
+            >
+              U
+            </button>
+            
+            {/* Profile Dropdown Menu */}
+            {isProfileMenuOpen && (
+              <div 
+                ref={profileMenuRef}
+                className="absolute right-0 mt-2 w-64 bg-white rounded-lg shadow-lg border border-gray-200 z-10"
+              >
+                <div className="p-4 border-b border-gray-200">
+                  <div className="flex items-center space-x-3">
+                    <div className="h-12 w-12 rounded-full bg-gradient-to-r from-amber-500 to-orange-600 flex items-center justify-center text-white text-lg font-semibold">
+                      U
+                    </div>
+                    <div>
+                      <h2 className="font-bold text-xs text-gray-800">{userData.name}</h2>
+                      <p className="text-xs text-gray-500">{userData.email}</p>
+                    </div>
+                  </div>
+                </div>
+                
+                <div className="py-2">
+                  <a href="/profile" className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
+                    👤 View Profile
+                  </a>
+                  <a href="/settings" className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
+                    ⚙️ Settings
+                  </a>
+                  <a href="/help" className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
+                    ❓ Help & Support
+                  </a>
+                  <button 
+                    onClick={handleLogout}
+                    className="w-full text-left px-4 py-2 text-sm text-red-600 hover:bg-gray-100"
+                  >
+                    🚪 Logout
+                  </button>
+                </div>
+              </div>
+            )}
           </div>
+          
           <button
             className="px-4 py-2 rounded-md border border-red-600 text-red-600 hover:text-white hover:bg-orange-700 duration-200 relative"
             onClick={handleLogout}

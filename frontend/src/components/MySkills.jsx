@@ -1,7 +1,20 @@
 import React, { useState } from "react";
+import useGetRequest from "../hooks/useGetRequest";
+import axios from "axios";
 
 const MySkills = () => {
   // Sample data for skills the user is learning
+
+  const fetchAllSkills = async() => {
+      try {
+        const res = await axios.get(import.meta.env.VITE_API_URL+"/api/skill/all");
+        
+      } catch (error) {
+        
+      }
+  }
+
+
   const [learningSkills, setLearningSkills] = useState([
     {
       id: 1,
