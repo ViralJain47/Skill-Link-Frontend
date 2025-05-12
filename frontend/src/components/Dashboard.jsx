@@ -4,9 +4,20 @@ import EventModal from "./Dashboard/EventModal";
 import { useSelector } from "react-redux";
 import axios from "axios";
 import { toast } from "react-toastify";
+import { getAllSkills } from "../features/skill";
 
 const Dashboard = () => {
   // Sample data
+
+  const fetchAllSkills = async () => {
+    const skills = await getAllSkills();
+    console.log(skills);
+  }
+
+  useEffect(() => {
+    fetchAllSkills();
+  }, [])
+
 
   const [error, setError] = useState("");
   const [events, setEvents] = useState([]);
