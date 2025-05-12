@@ -23,7 +23,7 @@ const Dashboard = () => {
     try {
       // Fetch all users
       const usersResponse = await axios.get(
-        `${import.meta.env.VITE_API_URL}/api/users/all`
+        `${import.meta.env.VITE_API_URL}/api/user/all`
       );
 
       // Create skill matcher

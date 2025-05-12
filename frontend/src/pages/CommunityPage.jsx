@@ -3,7 +3,7 @@ import CommunityRooms from '../components/CoummunityRooms'
 
 function CommunityPage() {
   return (
-    <div>
+    <div className='h-screen'>
         <CommunityRooms />
     </div>
   )

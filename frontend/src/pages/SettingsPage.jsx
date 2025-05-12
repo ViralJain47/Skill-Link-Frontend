@@ -3,7 +3,7 @@ import { Settings } from '../components'
 
 function SettingsPage() {
   return (
-    <div>
+    <div className='min-h-screen'>
       <Settings />
     </div>
   )

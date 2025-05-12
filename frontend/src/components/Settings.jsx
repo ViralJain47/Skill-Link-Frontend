@@ -88,7 +88,7 @@ function Settings() {
   };
 
   return (
-    <div className="bg-white rounded-lg shadow-sm p-6">
+    <div className="bg-white rounded-lg shadow-sm p-6 min-h-screen">
       <div className="flex items-center mb-6">
         <FaCog className="text-amber-600 text-2xl mr-3" />
         <h1 className="text-2xl font-bold">Settings</h1>

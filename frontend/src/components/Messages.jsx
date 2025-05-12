@@ -230,7 +230,7 @@ const Messages = () => {
   const filterOptions = [...categories, ...uniqueCategories];
 
   return (
-    <div className="bg-white p-6 rounded-xl shadow-sm border border-amber-100 h-[600px] flex">
+    <div className="bg-white p-6 rounded-xl shadow-sm border border-amber-100 flex min-h-screen">
       {/* Conversations Sidebar */}
       <div className="w-1/3 border-r border-amber-100 pr-4 flex flex-col">
         <div className="flex justify-between items-center mb-4">
