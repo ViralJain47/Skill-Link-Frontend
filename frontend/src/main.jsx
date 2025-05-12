@@ -19,8 +19,7 @@ import EventsPage from "./pages/EventsPage.jsx";
 import CommunityRooms from "./components/CoummunityRooms.jsx";
 import CommunityPage from "./pages/CommunityPage.jsx";
 import Profile from "./components/Profile.jsx";
-
-
+import NotFoundPage from "./pages/NotFoundPage.jsx";
 
 const router = createBrowserRouter([
   {
@@ -29,7 +28,7 @@ const router = createBrowserRouter([
     children: [
       {
         path: "",
-        element: <HomePage />
+        element: <HomePage />,
       },
       {
         path: "login",
@@ -61,7 +60,9 @@ const router = createBrowserRouter([
       },
       {
         path: "community",
-        element: <AuthLayout children={<CommunityPage />} authRequired={true} />,
+        element: (
+          <AuthLayout children={<CommunityPage />} authRequired={true} />
+        ),
       },
       {
         path: "settings",
@@ -70,6 +71,10 @@ const router = createBrowserRouter([
       {
         path: "profile",
         element: <AuthLayout children={<Profile />} authRequired={true} />,
+      },
+      {
+        path: "*",
+        element: <NotFoundPage />,
       },
     ],
   },

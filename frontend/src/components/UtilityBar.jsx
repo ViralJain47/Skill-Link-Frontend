@@ -1,7 +1,7 @@
 import {React, useState, useRef, useEffect} from "react";
 import {useDispatch, useSelector} from "react-redux";
 import { logout } from "../store/authSlice";
-import {useNavigate} from "react-router-dom";
+import {Link, useNavigate} from "react-router-dom";
 import axios from "axios";
 
 function UtilityBar() {
@@ -98,15 +98,15 @@ function UtilityBar() {
                 </div>
                 
                 <div className="py-2">
-                  <a href="/profile" className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
+                  <Link to="/profile" className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
                     👤 View Profile
-                  </a>
-                  <a href="/settings" className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
+                  </Link>
+                  <Link to="/settings" className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
                     ⚙️ Settings
-                  </a>
-                  <a href="/help" className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
+                  </Link>
+                  <Link to="/help" className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
                     ❓ Help & Support
-                  </a>
+                  </Link>
                   <button 
                     onClick={handleLogout}
                     className="w-full text-left px-4 py-2 text-sm text-red-600 hover:bg-gray-100"

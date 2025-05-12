@@ -3,7 +3,7 @@ import DashboardEvents from '../components/Dashboard/DashboardEvents'
 
 function EventsPage() {
   return (
-    <div>
+    <div className='min-h-screen'>
       <DashboardEvents />
     </div>
   )

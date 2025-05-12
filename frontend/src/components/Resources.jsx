@@ -1,12 +1,48 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
+import { createBlog, getAllBlogs } from "../features/blog";
+import { useSelector } from "react-redux";
 
 const Resources = () => {
   const [selectedCategory, setSelectedCategory] = useState("All");
   const [searchQuery, setSearchQuery] = useState("");
-  
+  const [blogs, setBlogs] = useState([]);
   // Sample categories
   const categories = ["All", "Web Development", "Design", "Data Science", "Programming", "Marketing"];
 
+  const userId = useSelector(state => state.auth.userData._id);
+
+  const fetchAllBlogs = async () => {
+    try {
+      const res = await getAllBlogs();
+      setBlogs(res);
+      console.log(res);
+    } catch (error) {
+      console.log(error);
+    }
+  }
+
+  const handleAddBlog = async (blogData) => {
+    try {
+      blogData.createdBy = userId;
+      const res = await createBlog(blogData);
+      setBlogs(res);
+      console.log(res);
+    } catch (error) {
+      console.log(error);
+    }
+  }
+
+  const handleUpdateBlog = async () => {
+
+  }
+
+  const handleDeleteBlog = async () => {
+
+  }
+
+  useEffect(() => {
+    fetchAllBlogs();
+  }, [])
   // Sample articles data
   const articlesData = [
     {

@@ -406,7 +406,7 @@ const Sessions = () => {
   };
 
   return (
-    <div className="bg-white p-6 rounded-xl shadow-sm border border-amber-100 relative">
+    <div className="bg-white p-6 rounded-xl shadow-sm border border-amber-100 relative min-h-screen">
       {/* Notification */}
       {notification && (
         <div 
