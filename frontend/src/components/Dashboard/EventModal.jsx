@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { FaTimes, FaCalendarAlt, FaClock, FaMapMarkerAlt, FaUser, FaDollarSign } from 'react-icons/fa';
+import { FaTimes, FaCalendarAlt, FaClock, FaMapMarkerAlt, FaUser, FaDollarSign, FaRupeeSign } from 'react-icons/fa';
 
 const EventModal = ({ isOpen, onClose, onSubmit, event, mode }) => {
   const [formData, setFormData] = useState({
@@ -257,7 +257,7 @@ const EventModal = ({ isOpen, onClose, onSubmit, event, mode }) => {
               <label className="block text-gray-700 font-medium mb-2">Registration Fee (₹)</label>
               <div className="relative">
                 <div className="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none">
-                  <FaDollarSign className="text-gray-400" />
+                  <FaRupeeSign className="text-gray-400" />
                 </div>
                 <input
                   type="number"

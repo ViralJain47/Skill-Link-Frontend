@@ -181,7 +181,7 @@ function DashboardEvents() {
           variants={fadeInUp}
         >
           <div className="p-3 rounded-full bg-emerald-100 mb-6">
-            <FaCalendarAlt className="text-emerald-600 text-3xl" />
+            <FaCalendarAlt className="text-amber-600 text-3xl" />
           </div>
           <h3 className="text-3xl md:text-4xl font-bold text-gray-800 text-center">
             Upcoming Events
@@ -190,14 +190,14 @@ function DashboardEvents() {
             Join us for these exciting opportunities to learn, connect, and grow
             with fellow students and industry experts.
           </p>
-          <div className="w-24 h-1 bg-emerald-500 mt-6 rounded-full"></div>
+          <div className="w-24 h-1 bg-amber-500 mt-6 rounded-full"></div>
         </motion.div>
 
         {/* Create Event Button */}
         <motion.div className="mb-8 flex justify-end" variants={fadeInUp}>
           <button
             onClick={openCreateModal}
-            className="bg-emerald-600 hover:bg-emerald-700 text-white font-medium py-2 px-6 rounded-lg transition-colors duration-300 flex items-center"
+            className="bg-amber-600 hover:bg-amber-700 text-white font-medium py-2 px-6 rounded-lg transition-colors duration-300 flex items-center"
           >
             <FaPlus className="mr-2" /> Create Event
           </button>
@@ -217,9 +217,9 @@ function DashboardEvents() {
         {loading ? (
           <motion.div className="flex justify-center py-12" variants={fadeInUp}>
             <div className="animate-pulse flex space-x-2">
-              <div className="w-3 h-3 bg-emerald-500 rounded-full"></div>
-              <div className="w-3 h-3 bg-emerald-500 rounded-full"></div>
-              <div className="w-3 h-3 bg-emerald-500 rounded-full"></div>
+              <div className="w-3 h-3 bg-amber-500 rounded-full"></div>
+              <div className="w-3 h-3 bg-amber-500 rounded-full"></div>
+              <div className="w-3 h-3 bg-amber-500 rounded-full"></div>
             </div>
           </motion.div>
         ) : (
@@ -332,7 +332,7 @@ function DashboardEvents() {
                           )}-700 font-medium py-2 px-4 rounded-lg transition-colors duration-300`}
                         >
                           {event.registrationFee > 0
-                            ? `Register ($${event.registrationFee})`
+                            ? `Register (₹${event.registrationFee})`
                             : "RSVP"}
                         </button>
                       </div>
