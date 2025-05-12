@@ -14,6 +14,110 @@ const Dashboard = () => {
   const [currentEvent, setCurrentEvent] = useState(null);
   const [modalMode, setModalMode] = useState("create"); // 'create' or 'edit'
 
+  const [recommendedUsers, setRecommendedUsers] = useState([]);
+  
+  const user = useSelector((state) => state.auth.userData);
+
+  // Fetch and process skill matches
+  const fetchSkillMatches = async () => {
+    try {
+      // Fetch all users
+      const usersResponse = await axios.get(
+        `${import.meta.env.VITE_API_URL}/api/users/all`
+      );
+
+      // Create skill matcher
+      const skillMatcher = new SkillMatcher(user, usersResponse.data);
+      
+      // Find best matches
+      const matches = skillMatcher.findBestMatches();
+      
+      // Transform matches for UI
+      const formattedMatches = matches.map(match => ({
+        id: match._id,
+        name: match.name,
+        avatar: "/api/placeholder/40/40", // Replace with actual avatar logic
+        skill: match.skills.join(", "), // Join skills for display
+        compatibility: match.compatibilityScore,
+        location: match.location || "Remote", // Default to remote if no location
+        commonSkills: match.commonSkills
+      }));
+
+      setRecommendedUsers(formattedMatches);
+    } catch (err) {
+      setError("Failed to fetch skill matches");
+      console.error(err);
+    }
+  };
+
+  useEffect(() => {
+    if (user) {
+      fetchSkillMatches();
+    }
+  }, [user]);
+
+
+  class SkillMatcher {
+    constructor(currentUser, allUsers) {
+      this.currentUser = currentUser;
+      this.allUsers = allUsers;
+    }
+  
+    // Calculate skill compatibility
+    calculateSkillCompatibility(userSkills, matchSkills) {
+      // Convert skills to sets for easier comparison
+      const currentUserSkillSet = new Set(userSkills.map(skill => skill.toLowerCase().trim()));
+      const matchUserSkillSet = new Set(matchSkills.map(skill => skill.toLowerCase().trim()));
+  
+      // Calculate overlap
+      const commonSkills = new Set(
+        [...currentUserSkillSet].filter(skill => matchUserSkillSet.has(skill))
+      );
+  
+      // Compatibility calculation
+      const totalUniqueSkills = new Set([...currentUserSkillSet, ...matchUserSkillSet]);
+      const compatibilityScore = Math.round((commonSkills.size / totalUniqueSkills.size) * 100);
+  
+      return {
+        compatibilityScore,
+        commonSkills: Array.from(commonSkills)
+      };
+    }
+  
+    // Advanced matching algorithm
+    findBestMatches(maxMatches = 5, minCompatibility = 30) {
+      const potentialMatches = this.allUsers
+        // Exclude the current user
+        .filter(user => user._id !== this.currentUser._id)
+        // Exclude users with no skills
+        .filter(user => user.skills && user.skills.length > 0)
+        // Map and score potential matches
+        .map(user => {
+          const compatibility = this.calculateSkillCompatibility(
+            this.currentUser.skills || [], 
+            user.skills
+          );
+  
+          return {
+            ...user,
+            compatibilityScore: compatibility.compatibilityScore,
+            commonSkills: compatibility.commonSkills
+          };
+        })
+        // Filter by minimum compatibility
+        .filter(match => match.compatibilityScore >= minCompatibility)
+        // Sort by compatibility score in descending order
+        .sort((a, b) => b.compatibilityScore - a.compatibilityScore)
+        // Limit to max matches
+        .slice(0, maxMatches);
+  
+      return potentialMatches;
+    }
+  }
+
+
+  
+
   const openCreateModal = () => {
     setCurrentEvent(null);
     setModalMode("create");
@@ -45,7 +149,7 @@ const Dashboard = () => {
     }
   };
 
-  const user = useSelector((state) => state.auth.userData);
+  // const user = useSelector((state) => state.auth.userData);
 
   const handleCreateEvent = async (eventData) => {
     eventData.host = user._id;
@@ -182,57 +286,63 @@ const Dashboard = () => {
       <div className="grid grid-cols-2 gap-6">
         {/* Skill Matches */}
         <div className="bg-white p-6 rounded-xl shadow-sm border border-amber-100">
-          <h2 className="text-xl font-bold text-gray-800 mb-4 flex items-center">
-            <span className="text-amber-500 mr-2">🔍</span> Recommended Skill
-            Matches
-          </h2>
+        <h2 className="text-xl font-bold text-gray-800 mb-4 flex items-center">
+          <span className="text-amber-500 mr-2">🔍</span> Recommended Skill Matches
+        </h2>
 
-          <div className="space-y-4">
-            {skillMatches.map((match) => (
-              <div
-                key={match.id}
-                className="flex items-center justify-between p-4 border border-amber-100 rounded-lg hover:bg-amber-50 transition duration-300 hover:scale-102"
-              >
-                <div className="flex items-center">
-                  <div className="h-12 w-12 rounded-full bg-gradient-to-br from-amber-400 to-orange-500 flex items-center justify-center text-white font-bold">
-                    {match.name.charAt(0)}
-                  </div>
-                  <div className="ml-3">
-                    <h3 className="font-medium">{match.name}</h3>
-                    <div className="flex items-center">
-                      <span className="text-sm text-gray-600">
-                        {match.skill}
-                      </span>
-                      <span className="mx-2 text-amber-300">•</span>
-                      <span className="text-sm text-gray-600">
-                        {match.location}
-                      </span>
-                    </div>
-                  </div>
+        <div className="space-y-4">
+          {recommendedUsers.map((match) => (
+            <div
+              key={match.id}
+              className="flex items-center justify-between p-4 border border-amber-100 rounded-lg hover:bg-amber-50 transition duration-300 hover:scale-102"
+            >
+              <div className="flex items-center">
+                <div className="h-12 w-12 rounded-full bg-gradient-to-br from-amber-400 to-orange-500 flex items-center justify-center text-white font-bold">
+                  {match.name.charAt(0)}
                 </div>
-                <div className="flex items-center">
-                  <div className="mr-4 text-center">
-                    <div className="h-10 w-10 rounded-full border-2 border-amber-300 flex items-center justify-center">
-                      <span className="text-sm font-bold text-amber-600">
-                        {match.compatibility}%
-                      </span>
-                    </div>
-                    <span className="text-xs text-gray-500 block mt-1">
-                      match
-                    </span>
+                <div className="ml-3">
+                  <h3 className="font-medium">{match.name}</h3>
+                  <div className="flex items-center">
+                    <span className="text-sm text-gray-600">{match.skill}</span>
+                    <span className="mx-2 text-amber-300">•</span>
+                    <span className="text-sm text-gray-600">{match.location}</span>
                   </div>
-                  <button className="px-3 py-1 bg-gradient-to-r from-amber-500 to-orange-600 text-white text-sm rounded-md hover:from-amber-600 hover:to-orange-700 shadow-sm transition duration-300">
-                    Connect
-                  </button>
+                  {match.commonSkills && match.commonSkills.length > 0 && (
+                    <p className="text-xs text-gray-500 mt-1">
+                      Common skills: {match.commonSkills.join(", ")}
+                    </p>
+                  )}
                 </div>
               </div>
-            ))}
-          </div>
-
-          <button className="mt-4 text-amber-600 font-medium hover:text-amber-800 flex items-center">
-            View all matches <span className="ml-1">→</span>
-          </button>
+              <div className="flex items-center">
+                <div className="mr-4 text-center">
+                  <div className="h-10 w-10 rounded-full border-2 border-amber-300 flex items-center justify-center">
+                    <span className="text-sm font-bold text-amber-600">
+                      {match.compatibility}%
+                    </span>
+                  </div>
+                  <span className="text-xs text-gray-500 block mt-1">
+                    match
+                  </span>
+                </div>
+                <button className="px-3 py-1 bg-gradient-to-r from-amber-500 to-orange-600 text-white text-sm rounded-md hover:from-amber-600 hover:to-orange-700 shadow-sm transition duration-300">
+                  Connect
+                </button>
+              </div>
+            </div>
+          ))}
         </div>
+
+        {recommendedUsers.length === 0 && (
+          <p className="text-gray-500 text-center">
+            No skill matches found. Try adding more skills to your profile!
+          </p>
+        )}
+
+        <button className="mt-4 text-amber-600 font-medium hover:text-amber-800 flex items-center">
+          View all matches <span className="ml-1">→</span>
+        </button>
+      </div>
 
         {/* Upcoming Events */}
         <div className="bg-white p-6 rounded-xl shadow-sm border border-amber-100">
