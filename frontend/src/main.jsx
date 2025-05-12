@@ -20,6 +20,7 @@ import CommunityRooms from "./components/CoummunityRooms.jsx";
 import CommunityPage from "./pages/CommunityPage.jsx";
 import Profile from "./components/Profile.jsx";
 import NotFoundPage from "./pages/NotFoundPage.jsx";
+import Blog from "./components/Blog.jsx";
 
 const router = createBrowserRouter([
   {
@@ -71,6 +72,10 @@ const router = createBrowserRouter([
       {
         path: "profile",
         element: <AuthLayout children={<Profile />} authRequired={true} />,
+      },
+      {
+        path: "blog/:blogId",
+        element: <AuthLayout children={<Blog />} authRequired={true} />,
       },
       {
         path: "*",
