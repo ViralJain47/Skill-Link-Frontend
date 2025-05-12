@@ -18,6 +18,7 @@ import Settings from "./components/Settings.jsx";
 import EventsPage from "./pages/EventsPage.jsx";
 import CommunityRooms from "./components/CoummunityRooms.jsx";
 import CommunityPage from "./pages/CommunityPage.jsx";
+import Profile from "./components/Profile.jsx";
 
 
 
@@ -65,6 +66,10 @@ const router = createBrowserRouter([
       {
         path: "settings",
         element: <AuthLayout children={<Settings />} authRequired={true} />,
+      },
+      {
+        path: "profile",
+        element: <AuthLayout children={<Profile />} authRequired={true} />,
       },
     ],
   },

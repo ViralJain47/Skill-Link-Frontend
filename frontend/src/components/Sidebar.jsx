@@ -11,7 +11,7 @@ function Sidebar({className}) {
           <h1 className="text-2xl font-bold text-amber-400">SkillLink</h1>
         </div>
         <nav className="mt-6">
-          {[{name: 'dashboard', slug: '/'}, {name: 'my skills', slug: '/my-skills'}, {name: 'messages', slug: '/messages'}, {name: 'sessions', slug: '/sessions'}, {name: 'events', slug: '/events'}, {name: 'resources', slug: '/resources'},  {name: 'settings', slug: '/settings'}].map((item) => (
+          {[{name: 'dashboard', slug: '/'}, {name:"profile" , slug:'/profile'},{name: 'my skills', slug: '/my-skills'}, {name: 'messages', slug: '/messages'}, {name: 'sessions', slug: '/sessions'}, {name: 'events', slug: '/events'}, {name: 'resources', slug: '/resources'}, , {name: 'settings', slug: '/settings'}].map((item) => (
             <button
               key={item.name}
               onClick={() => {
