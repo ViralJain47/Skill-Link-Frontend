@@ -1,5 +1,5 @@
-import {React, useState, useRef, useEffect} from "react";
-import {useDispatch, useSelector} from "react-redux";
+import { React, useState, useRef, useEffect } from "react";
+import { useDispatch, useSelector } from "react-redux";
 import { logout } from "../store/authSlice";
 import {Link, useNavigate} from "react-router-dom";
 import axios from "axios";
@@ -23,7 +23,7 @@ function UtilityBar() {
   useEffect(() => {
     function handleClickOutside(event) {
       if (
-        profileMenuRef.current && 
+        profileMenuRef.current &&
         !profileMenuRef.current.contains(event.target) &&
         userButtonRef.current &&
         !userButtonRef.current.contains(event.target)
@@ -71,24 +71,26 @@ function UtilityBar() {
             </span>
           </button>
           <div className="relative">
-            <button 
+            <button
               ref={userButtonRef}
-              className="h-10 w-10 rounded-full bg-gradient-to-r from-amber-500 to-orange-600 flex items-center justify-center text-white shadow-md"
+              className="h-10 w-10 rounded-full bg-gradient-to-r from-amber-500 to-orange-600 flex items-center justify-center text-white text-xl shadow-md"
               onClick={toggleProfileMenu}
             >
-              U
+              {userData.name.charAt(0)}
             </button>
-            
+
+
+
             {/* Profile Dropdown Menu */}
             {isProfileMenuOpen && (
-              <div 
+              <div
                 ref={profileMenuRef}
                 className="absolute right-0 mt-2 w-64 bg-white rounded-lg shadow-lg border border-gray-200 z-10"
               >
                 <div className="p-4 border-b border-gray-200">
                   <div className="flex items-center space-x-3">
                     <div className="h-12 w-12 rounded-full bg-gradient-to-r from-amber-500 to-orange-600 flex items-center justify-center text-white text-lg font-semibold">
-                      U
+                      {userData.name.charAt(0)}
                     </div>
                     <div>
                       <h2 className="font-bold text-xs text-gray-800">{userData.name}</h2>
@@ -96,7 +98,7 @@ function UtilityBar() {
                     </div>
                   </div>
                 </div>
-                
+
                 <div className="py-2">
                   <Link to="/profile" className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
                     👤 View Profile
@@ -108,6 +110,7 @@ function UtilityBar() {
                     ❓ Help & Support
                   </Link>
                   <button 
+
                     onClick={handleLogout}
                     className="w-full text-left px-4 py-2 text-sm text-red-600 hover:bg-gray-100"
                   >
@@ -117,13 +120,7 @@ function UtilityBar() {
               </div>
             )}
           </div>
-          
-          <button
-            className="px-4 py-2 rounded-md border border-red-600 text-red-600 hover:text-white hover:bg-orange-700 duration-200 relative"
-            onClick={handleLogout}
-          >
-            Logout
-          </button>
+
         </div>
       </div>
     </header>
