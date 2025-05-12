@@ -2,6 +2,7 @@ import React, { useState, useEffect, useRef } from "react";
 import io from "socket.io-client";
 import axios from "axios";
 import { Construction } from "lucide-react";
+import {useSelector} from "react-redux"
 
 const Messages = () => {
   const [selectedConversation, setSelectedConversation] = useState(null);
@@ -23,8 +24,8 @@ const Messages = () => {
   useEffect(() => {
     const getUserData = async () => {
       try {
-        const userResponse = await axios.get(import.meta.env.VITE_API_URL+'/api/auth/me');
-        setCurrentUser(userResponse.data);
+        const userResponse = useSelector((state) => state.auth.userData);
+        setCurrentUser(userResponse);
 
         const socketInstance = io();
         setSocket(socketInstance);
@@ -135,51 +136,36 @@ const Messages = () => {
     }
   };
 
-  // Mark messages as read
-  const markMessagesAsRead = async (userId) => {
-    try {
-      await axios.put(import.meta.env.VITE_API_URL+`/api/messages/read/${userId}`);
-      setConversations(prev => {
-        return prev.map(conv => {
-          if (conv.id === userId) {
-            return { ...conv, unread: 0 };
-          }
-          return conv;
-        });
-      });
-    } catch (error) {
-      console.error("Error marking messages as read:", error);
-    }
-  };
-
   // Handle selecting a conversation
   const handleSelectConversation = (conversation) => {
     setSelectedConversation(conversation);
     fetchMessages(conversation.id);
   };
 
-  // Send a new message
-  const sendMessage = async () => {
-    if (!newMessage.trim() || !selectedConversation || !currentUser) return;
-
-    try {
-      const messageData = {
-        receiver: selectedConversation.id,
-        message: newMessage
-      };
-
-      await axios.post(import.meta.env.VITE_API_URL+'/api/messages', messageData);
-      setNewMessage("");
-    } catch (error) {
-      console.error("Error sending message:", error);
-    }
-  };
-
+  
   // Handle key press for sending message with Enter
   const handleKeyPress = (e) => {
     if (e.key === 'Enter' && !e.shiftKey) {
       e.preventDefault();
       sendMessage();
+    }
+  };
+
+  const sendMessage = () => {
+    if (!newMessage.trim() || !selectedConversation || !currentUser) return;
+  
+    try {
+      const messageData = {
+        sender: currentUser._id,
+        receiver: selectedConversation.id,
+        message: newMessage,
+      };
+      
+      socket.emit("message", messageData);
+
+      setNewMessage("");
+    } catch (error) {
+      console.error("Error sending message:", error);
     }
   };
 
