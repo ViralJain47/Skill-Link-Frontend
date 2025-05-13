@@ -9,12 +9,12 @@ function Profile() {
     const [userData, setUserData] = useState({
       name: user.name,
       email: user.email,
-      title: "Full Stack Developer",
-      location: "San Francisco, CA",
+      title: "Devops Engineer",
+      location: "Indore, Madhya Pradesh-453331",
       bio: user.bio,
-      joinDate: "January 2023",
+      joinDate: "May 2025",
       skills: ["JavaScript", "React", "Node.js", "Python", "MongoDB", "AWS"],
-      connections: 153,
+      connections: user.connections.length,
       achievements: [
         { id: 1, title: "Problem Solver", icon: "🏆", description: "Solved 50+ technical challenges" },
         { id: 2, title: "Team Player", icon: "👥", description: "Collaborated on 10+ group projects" },
@@ -116,10 +116,10 @@ function Profile() {
                   <span className="mr-2">📧</span> {userData.email}
                 </p>
                 <p className="flex items-center text-gray-700">
-                  <span className="mr-2">🔗</span> linkedin.com/in/johndoe
+                  <span className="mr-2">🔗</span> linkedin.com/in/vanshdubeyy
                 </p>
                 <p className="flex items-center text-gray-700">
-                  <span className="mr-2">🌐</span> johndoe.dev
+                  <span className="mr-2">🌐</span> vanshdubey.dev
                 </p>
               </div>
               

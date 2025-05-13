@@ -17,6 +17,7 @@ const Dashboard = () => {
   const [recommendedUsers, setRecommendedUsers] = useState([]);
   
   const user = useSelector((state) => state.auth.userData);
+  console.log(user)
 
   // Fetch and process skill matches
   const fetchSkillMatches = async () => {

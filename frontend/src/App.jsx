@@ -7,12 +7,14 @@ import { Footer, Header, MainLoader, Sidebar, UtilityBar } from "./components";
 import useGetRequest from "./hooks/useGetRequest";
 import { ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
+import { SocketProvider } from "./hooks/Socket";
 
 function App() {
   const isAuthenticated = useSelector((state) => state.auth.status);
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(true);
   const dispatch = useDispatch();
+  const userId = useSelector((state) => state.auth.userData?._id)
 
   useEffect(() => {
     setLoading(true);
@@ -73,7 +75,7 @@ function App() {
   }
 
   return (
-    <>
+    <SocketProvider userID={userId}>
       <div className="w-full min-h-screen flex flex-col">
         <div className="flex">
           <Sidebar className={"min-h-screen fixed bg-amber-200"} />
@@ -97,7 +99,7 @@ function App() {
           pauseOnHover
           theme="light"
         />
-    </>
+    </SocketProvider>
   );
 }
 

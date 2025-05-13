@@ -1,8 +1,9 @@
-import React, { useState, useEffect, useRef } from "react";
+import React, { useState, useEffect, useRef, useContext } from "react";
 import io from "socket.io-client";
 import axios from "axios";
 import { Construction } from "lucide-react";
 import {useSelector} from "react-redux"
+import { SocketContext } from "../hooks/Socket";
 
 const Messages = () => {
   const [selectedConversation, setSelectedConversation] = useState(null);
@@ -13,10 +14,11 @@ const Messages = () => {
   const [messages, setMessages] = useState([]);
   const [currentUser, setCurrentUser] = useState(null);
   const [loading, setLoading] = useState(true);
-  const [socket, setSocket] = useState(null);
+  
   // New state for user list and modal
   const [users, setUsers] = useState([]);
   const [isUserModalOpen, setIsUserModalOpen] = useState(false);
+  const socketInstance = useContext(SocketContext)
 
   const messagesEndRef = useRef(null);
 
@@ -26,9 +28,6 @@ const Messages = () => {
       try {
         const userResponse = useSelector((state) => state.auth.userData);
         setCurrentUser(userResponse);
-
-        const socketInstance = io();
-        setSocket(socketInstance);
 
         socketInstance.on("new-message", (message) => {
           if (
@@ -64,12 +63,8 @@ const Messages = () => {
         });
 
         fetchConversations();
-
-        return () => {
-          socketInstance.disconnect();
-        };
       } catch (error) {
-        console.error("Error initializing:", error);
+        console.log("Error initializing:", error);
         setLoading(false);
       }
     };

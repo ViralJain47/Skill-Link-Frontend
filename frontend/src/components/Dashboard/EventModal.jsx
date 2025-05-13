@@ -16,6 +16,8 @@ const EventModal = ({ isOpen, onClose, onSubmit, event, mode }) => {
     status: 'upcoming'
   });
 
+  const [files, setFiles] = useState(null);
+
   // Populate form when editing
   useEffect(() => {
     if (event && mode === 'edit') {
@@ -45,7 +47,8 @@ const EventModal = ({ isOpen, onClose, onSubmit, event, mode }) => {
     
     const submitData = {
       ...formData,
-      date: dateTime.toISOString()
+      date: dateTime.toISOString(),
+      media: files
     };
     
     // Remove time field as it's now part of date
@@ -53,6 +56,11 @@ const EventModal = ({ isOpen, onClose, onSubmit, event, mode }) => {
     
     onSubmit(submitData);
   };
+
+  const handleFileChange = (e) => {
+    const selectedFiles = Array.from(e.target.files); // Convert FileList to array
+    setFiles(selectedFiles);
+  }
 
   if (!isOpen) return null;
 
@@ -126,6 +134,24 @@ const EventModal = ({ isOpen, onClose, onSubmit, event, mode }) => {
                 ))}
               </select>
             </div>
+
+            {/* Event Media */}    
+            <div className="mb-6">
+            <label
+              className="block text-gray-700 font-medium mb-2"
+              htmlFor="title"
+            >
+              Media
+            </label>
+            <input
+              id="image"
+              name="image"
+              type="file"
+              onChange={handleFileChange}
+              multiple
+              className="w-full px-4 py-2 border border-amber-200 rounded-md focus:outline-none focus:ring-2 focus:ring-amber-500 focus:border-transparent"
+            />
+          </div>
             
             {/* Status */}
             <div>

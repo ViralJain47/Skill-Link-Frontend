@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useRef } from "react";
 import { motion, useInView } from "framer-motion";
+import placeholder from "../../assets/placeholder.png"
 import {
   FaCalendarAlt,
   FaClock,
@@ -78,9 +79,34 @@ function DashboardEvents() {
   const handleCreateEvent = async (eventData) => {
     eventData.host = user._id;
     try {
+      console.log(eventData.media)
+      const formData = new FormData()
+      formData.append('title', eventData.title)
+      formData.append('description', eventData.description)
+      formData.append('date', eventData.date)
+      formData.append('time', eventData.time)
+      formData.append('duration', eventData.duration)
+      formData.append('venue', eventData.venue)
+      formData.append('type', eventData.type)
+      formData.append('maxParticipants', eventData.maxParticipants)
+      formData.append('minParticipants', eventData.minParticipants)
+      formData.append('registrationFee', eventData.registrationFee)
+      formData.append('status', eventData.status)
+      formData.append('host', eventData.host)
+      
+      for(let image of eventData.media)
+      {
+        formData.append('media', image)
+      }
+
       await axios.post(
         import.meta.env.VITE_API_URL + "/api/event/create",
-        eventData
+        formData,
+        {
+          headers : {
+            'Content-Type': 'multipart/form-data'
+          }
+        }
       );
       fetchEvents();
       setShowModal(false);
@@ -235,7 +261,7 @@ function DashboardEvents() {
                   >
                     <div className="relative h-48 overflow-hidden">
                       <img
-                        src={event.media?.[0] || getEventImage(event.type)}
+                        src={ event.media[0] ? `${import.meta.env.VITE_API_URL}${event.media?.[0]}` || getEventImage(event.type): placeholder}
                         alt={event.title}
                         className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
                       />
