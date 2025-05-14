@@ -7,7 +7,7 @@ import { useAnimationControls } from 'framer-motion';
 function HomePage() {
 
   const isAuthenticated = useSelector((state) => state.auth.status);
-  const userId = useSelector((state) => state.auth.userData._id)
+  const userId = useSelector((state) => state.auth.userData?._id);
 
   useEffect(() => {
     console.log(userId)

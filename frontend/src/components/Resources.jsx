@@ -43,7 +43,7 @@ const Resources = () => {
 
   return (
     <>
-      {blogs.length == 0 ? (
+      {blogs.length < 0 ? (
         <>Loading...</>
       ) : (
         <>

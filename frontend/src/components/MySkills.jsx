@@ -6,14 +6,14 @@ import {
   updateSkill,
   deleteSkill,
 } from "../features/skill";
-import { useSelector } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 
 const MySkills = () => {
   const [showAddSkillModal, setShowAddSkillModal] = useState(false);
   const [skills, setSkills] = useState([]);
   const userId = useSelector((state) => state.auth.userData?._id);
   const [activeTab, setActiveTab] = useState("Learning");
-
+  const dispatch = useDispatch();
   // Handle adding a new skill
     const handleAddSkill = async (skillData) => {
         try {
