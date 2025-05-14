@@ -147,7 +147,7 @@ const Messages = () => {
   };
 
   const sendMessage = () => {
-    if (!newMessage.trim() || !selectedConversation || !currentUser) return;
+    // if (!newMessage.trim() || !selectedConversation || !currentUser) return;
   
     try {
       const messageData = {
@@ -156,7 +156,7 @@ const Messages = () => {
         message: newMessage,
       };
       
-      socket.emit("message", messageData);
+      socketInstance.emit("message", messageData);
 
       setNewMessage("");
     } catch (error) {
