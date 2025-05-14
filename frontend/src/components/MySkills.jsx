@@ -13,16 +13,18 @@ const MySkills = () => {
   const [skills, setSkills] = useState([]);
   const userId = useSelector((state) => state.auth.userData?._id);
   const [activeTab, setActiveTab] = useState("Learning");
-  const dispatch = useDispatch();
-  // Handle adding a new skill
+
     const handleAddSkill = async (skillData) => {
         try {
             const newSkill = {
                 ...skillData,
                 userId: userId,
             };
-            await createSkill(newSkill);
-            await fetchAllSkills();
+            await createSkill(newSkill);            
+            setSkills(prev => ([
+              ...prev, newSkill
+            ]))
+
             setShowAddSkillModal(false);
         } catch (error) {
             console.error("Error adding skill:", error);

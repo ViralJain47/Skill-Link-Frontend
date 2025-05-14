@@ -6,13 +6,12 @@ import axios from "axios";
 import { toast } from "react-toastify";
 
 const Dashboard = () => {
-  // Sample data
   
   const [error, setError] = useState("");
   const [events, setEvents] = useState([]);
   const [showModal, setShowModal] = useState(false);
   const [currentEvent, setCurrentEvent] = useState(null);
-  const [modalMode, setModalMode] = useState("create"); // 'create' or 'edit'
+  const [modalMode, setModalMode] = useState("create");
 
   const [recommendedUsers, setRecommendedUsers] = useState([]);
   
@@ -391,6 +390,9 @@ const Dashboard = () => {
                 </div>
               </div>
             ))}
+            {
+              events.length == 0 && <div className="text-gray-500 text-center">No upcoming events for now. Add one yourself!</div>
+            }
           </div>
 
           <Link to={"/events"}>

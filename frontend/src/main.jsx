@@ -21,6 +21,7 @@ import CommunityPage from "./pages/CommunityPage.jsx";
 import Profile from "./components/Profile.jsx";
 import NotFoundPage from "./pages/NotFoundPage.jsx";
 import Blog from "./components/Blog.jsx";
+import User from "./components/User.jsx";
 
 const router = createBrowserRouter([
   {
@@ -76,6 +77,10 @@ const router = createBrowserRouter([
       {
         path: "blog/:blogId",
         element: <AuthLayout children={<Blog />} authRequired={true} />,
+      },
+      {
+        path: "user/:userId",
+        element: <User />,
       },
       {
         path: "*",
