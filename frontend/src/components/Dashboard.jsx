@@ -7,7 +7,7 @@ import { toast } from "react-toastify";
 
 const Dashboard = () => {
   // Sample data
-
+  
   const [error, setError] = useState("");
   const [events, setEvents] = useState([]);
   const [showModal, setShowModal] = useState(false);
@@ -257,7 +257,7 @@ const Dashboard = () => {
               <h3 className="font-medium text-amber-700">
                 Skills I'm Learning
               </h3>
-              <p className="text-3xl font-bold mt-2 text-amber-800">4</p>
+              <p className="text-3xl font-bold mt-2 text-amber-800">{user.skillsLearning.length}</p>
               <div className="w-full h-1 bg-amber-200 mt-3 rounded-full">
                 <div className="w-3/4 h-1 bg-amber-500 rounded-full"></div>
               </div>
@@ -268,7 +268,7 @@ const Dashboard = () => {
               <h3 className="font-medium text-orange-700">
                 Skills I'm Teaching
               </h3>
-              <p className="text-3xl font-bold mt-2 text-orange-800">2</p>
+              <p className="text-3xl font-bold mt-2 text-orange-800">{user.skillsTaught.length}</p>
               <div className="w-full h-1 bg-orange-200 mt-3 rounded-full">
                 <div className="w-1/2 h-1 bg-orange-500 rounded-full"></div>
               </div>
@@ -276,7 +276,7 @@ const Dashboard = () => {
           </Link>
           <div className="bg-gradient-to-br from-rose-50 to-rose-100 p-4 rounded-xl border border-rose-200 shadow-sm hover:scale-105 duration-200">
             <h3 className="font-medium text-rose-700">Active Connections</h3>
-            <p className="text-3xl font-bold mt-2 text-rose-800">7</p>
+            <p className="text-3xl font-bold mt-2 text-rose-800">{user.connections.length}</p>
             <div className="w-full h-1 bg-rose-200 mt-3 rounded-full">
               <div className="w-2/3 h-1 bg-rose-500 rounded-full"></div>
             </div>

@@ -381,7 +381,7 @@ function DashboardEvents() {
         <motion.div className="mt-12 text-center" variants={fadeInUp}>
           <a
             href="#all-events"
-            className="inline-flex items-center text-emerald-600 font-medium hover:text-emerald-700 transition-colors"
+            className="inline-flex items-center text-amber-600 font-medium hover:text-emerald-700 transition-colors"
           >
             View all events
             <FaArrowRight className="ml-2" />
