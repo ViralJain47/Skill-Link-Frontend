@@ -1,13 +1,13 @@
 import { Outlet } from "react-router-dom";
 import "./App.css";
 import { useDispatch, useSelector } from "react-redux";
-import { useEffect, useState } from "react";
-import { login, logout } from "./store/authSlice";
+import { useContext, useEffect, useState } from "react";
+import { addOnlineUsers, login, logout , removeOfflineUsers, addMultipleOnlineUsers} from "./store/authSlice";
 import { Footer, Header, MainLoader, Sidebar, UtilityBar } from "./components";
 import useGetRequest from "./hooks/useGetRequest";
 import { ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
-import { SocketProvider } from "./hooks/Socket";
+import { SocketContext, SocketProvider } from "./hooks/Socket";
 
 function App() {
   const isAuthenticated = useSelector((state) => state.auth.status);
@@ -73,9 +73,39 @@ function App() {
       </>
     );
   }
+    return (
+    <SocketProvider userID={userId}>
+      <Home/>
+    </SocketProvider>
+  );
+  
+}
+
+function Home () {
+
+  const socketInstance = useContext(SocketContext);
+  const dispatch = useDispatch()
+
+  useEffect(() => {
+
+    if(!socketInstance)
+    {
+      return;
+    }
+
+    socketInstance.on("online", (userId) => dispatch(addOnlineUsers(userId)));
+    socketInstance.on("offline", (userId) => dispatch(removeOfflineUsers(userId)));
+    socketInstance.on("online-users", (users) => dispatch(addMultipleOnlineUsers([...users])))
+    
+    return () => {
+      socketInstance.off("online")
+      socketInstance.off('offline')
+      socketInstance.off('online-users')  
+    };
+  }, [socketInstance]);
 
   return (
-    <SocketProvider userID={userId}>
+    <>
       <div className="w-full min-h-screen flex flex-col">
         <div className="flex">
           <Sidebar className={"min-h-screen fixed bg-amber-200"} />
@@ -99,7 +129,7 @@ function App() {
           pauseOnHover
           theme="light"
         />
-    </SocketProvider>
+    </>
   );
 }
 

@@ -2,7 +2,9 @@ import { createSlice } from "@reduxjs/toolkit";
 
 const initialState = {
     status:false,
-    userData:null
+    userData:null,
+    firstConversations: true,
+    onlineUsers : []
 }
 
 const authSlice = createSlice({
@@ -18,9 +20,29 @@ const authSlice = createSlice({
             state.status = false;
             state.userData = null;
         }
+        ,
+
+        setFirstConversations: (state) => {
+            state.firstConversations = false
+        },
+
+        addOnlineUsers: (state,action) => {
+            const newUser = action.payload;
+            state.onlineUsers = Array.from(new Set([...state.onlineUsers, newUser]));
+        },
+        
+        removeOfflineUsers: (state,action) => {
+            const userId = action.payload;
+            state.onlineUsers = state.onlineUsers.filter(user => user != userId);
+        },
+
+        addMultipleOnlineUsers: (state, action) => {
+            console.log("multiple Online: ", action.payload)
+            state.onlineUsers = Array.from(new Set([...state.onlineUsers, ...action.payload]))
+        },
     }
 })
 
 
-export const {login, logout} = authSlice.actions;
+export const {login, logout, setFirstConversations, addOnlineUsers, removeOfflineUsers, addMultipleOnlineUsers} = authSlice.actions;
 export default authSlice.reducer;

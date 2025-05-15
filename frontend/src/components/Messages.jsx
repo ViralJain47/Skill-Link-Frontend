@@ -1,13 +1,8 @@
 import React, { useState, useEffect, useRef, useContext, useCallback } from "react";
-import io from "socket.io-client"; // Note: io is imported but not directly used if socketInstance comes from context
 import axios from "axios";
-import { Construction } from "lucide-react"; // This seems unused, can be removed if not needed
-import { useSelector, useDispatch } from "react-redux"; // Added useDispatch
+import { useSelector, useDispatch } from "react-redux";
 import { SocketContext } from "../hooks/Socket";
-
-// Assume you have Redux actions and selectors like these (conceptual)
-// import { chatActions } from './redux/chatSlice'; // e.g., chatActions.setConversationMessages, chatActions.addMessageToConversation
-// import { selectMessagesForConversationFromStore } from './redux/chatSelectors'; // e.g., a selector function
+import { addOnlineUsers, setFirstConversations, removeOfflineUsers } from "../store/authSlice";
 
 const Messages = () => {
   const [selectedConversation, setSelectedConversation] = useState(null);
@@ -16,30 +11,24 @@ const Messages = () => {
   const [filter, setFilter] = useState("All");
   const [conversations, setConversations] = useState([]);
   const [messages, setMessages] = useState([]);
-  // const [currentUser, setCurrentUser] = useState(null); // Replaced by Redux selector
-  const [loading, setLoading] = useState(true); // General loading for initial data
-  const [messagesLoading, setMessagesLoading] = useState(false); // Specific loading for messages area
-
+  const [loading, setLoading] = useState(true);
+  const [messagesLoading, setMessagesLoading] = useState(false); 
   const [users, setUsers] = useState([]);
   const [isUserModalOpen, setIsUserModalOpen] = useState(false);
-  
   const socketInstance = useContext(SocketContext);
   const messagesEndRef = useRef(null);
   const dispatch = useDispatch();
+  const currentUser = useSelector((state) => state.auth.userData);
+  const {firstConversations, onlineUsers }  = useSelector((state) => state.auth) 
 
-  // Get current user from Redux store
-  const currentUser = useSelector((state) => state.auth.userData); 
-  
-  // Selector to get all chat messages from Redux (example structure)
-  // Replace with your actual selector. This assumes messages are stored in an object keyed by conversationId.
-  const allChatMessagesFromRedux = useSelector((state) => state.chat?.messagesByConversationId || {});
-
-  // Memoized version of fetchConversations
-  const fetchConversations = useCallback(async (selectFirst = false) => {
-    if (!currentUser?._id) return; // Don't fetch if no current user
+  console.log(onlineUsers)
+  const fetchConversations = useCallback(async (selectFirst = true) => {
+    if (!currentUser?._id || !firstConversations ) {  setLoading(false);  return;   }
     setLoading(true);
     try {
       const response = await axios.get(import.meta.env.VITE_API_URL + `/api/message/${currentUser?._id}`);
+
+      console.log("online users: ", onlineUsers)
 
       console.log(response.data.conversations)
       const formattedConversations = response.data.conversations.map(conv => ({
@@ -49,7 +38,7 @@ const Messages = () => {
         avatar: conv.avatar ? conv.avatar: conv.name.charAt(0),
         time: new Date(conv.lastMessageTime).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
         unread: conv.unreadCount,
-        online: conv.isOnline,
+        online: onlineUsers.includes(conv.userId),
         pinned: conv.pinned,
         category: conv.category || "General",
         lastMessageTimestamp: conv.lastMessageTime 
@@ -58,21 +47,20 @@ const Messages = () => {
       setConversations(formattedConversations);
 
       if (selectFirst && formattedConversations.length > 0 && !selectedConversation) {
-        // Automatically select the first conversation and fetch its messages
         handleSelectConversation(formattedConversations[0]);
       }
+      dispatch(setFirstConversations())
+
     } catch (error) {
       console.error("Error fetching conversations:", error);
     } finally {
       setLoading(false);
     }
-  }, [currentUser?._id, selectedConversation]); // Added selectedConversation to dependencies if selectFirst logic depends on it indirectly
+  }, [currentUser?._id, selectedConversation, onlineUsers]);
 
-  // Function to mark messages as read (local, Redux, and optionally backend)
   const markMessagesAsRead = useCallback(async (conversationId) => {
     if (!currentUser?._id || !conversationId) return;
 
-    // Update local conversations state
     setConversations(prevConvs =>
         prevConvs.map(conv =>
             conv.id === conversationId ? { ...conv, unread: 0 } : conv
@@ -85,19 +73,15 @@ const Messages = () => {
     if (!currentUser?._id || !receiverId) return;
     setMessagesLoading(true);
     setMessages([]);
-    console.log("sdafas: ", receiverId)
       try {
-        console.log(`${import.meta.env.VITE_API_URL}/api/message/${currentUser?._id}/${receiverId}`)
         const response = await axios.get(`${import.meta.env.VITE_API_URL}/api/message/${currentUser?._id}/${receiverId}`);
         const rawMessages = response.data.messages;
         console.log(rawMessages)
-
-
         const formattedApiMessages = rawMessages.map(msg => ({
           id: msg._id,
           sender: msg.sender,
           content: msg.content,
-          timestamp: msg.timestamp, // Store raw timestamp
+          timestamp: msg.timestamp,
           time: new Date(msg.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
           isOwn: msg.sender === currentUser._id
         }));
@@ -111,46 +95,37 @@ const Messages = () => {
       } finally {
         setMessagesLoading(false);
       }
-  }, [currentUser?._id, dispatch, allChatMessagesFromRedux, markMessagesAsRead]); // Added dependencies
+  }, [currentUser?._id, dispatch, markMessagesAsRead, onlineUsers]);
 
 
-  // Initial data load and socket setup
   useEffect(() => {
     if (currentUser?._id) {
-      fetchConversations(true); // Fetch conversations and select the first one initially
+      fetchConversations(true);
     }
-  }, [currentUser?._id, fetchConversations]);
+  }, [currentUser?._id, fetchConversations, onlineUsers]);
 
 
-  // Socket event listeners
   useEffect(() => {
     if (!socketInstance || !currentUser?._id) return;
 
     const handleNewMessage = (incomingMessage) => {
-      // incomingMessage expected: { _id, sender, receiver, message, timestamp, senderName (optional) }
       const conversationPartnerId = incomingMessage.sender === currentUser._id ? incomingMessage.receiver : incomingMessage.sender;
 
       const formattedMessage = {
         id: incomingMessage._id,
         conversationId: conversationPartnerId,
         sender: incomingMessage.sender,
-        // senderAvatar: incomingMessage.senderName?.charAt(0), // If senderName is provided
         content: incomingMessage.message,
         timestamp: incomingMessage.timestamp,
         time: new Date(incomingMessage.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
         isOwn: incomingMessage.sender === currentUser._id
       };
 
-      // Update Redux store with the new message
-      // dispatch(chatActions.addMessageToConversation({ conversationId: conversationPartnerId, message: formattedMessage }));
-
-      // Update local messages state if this is the currently open chat
       if (selectedConversation?.id === conversationPartnerId) {
         setMessages((prevMessages) => [...prevMessages, formattedMessage]);
-        markMessagesAsRead(conversationPartnerId); // Mark as read if user is viewing this chat
+        markMessagesAsRead(conversationPartnerId);
       }
 
-      // Update conversations list (last message, time, unread count)
       setConversations(prevConvs => {
         let conversationExists = false;
         const updatedConvs = prevConvs.map(conv => {
@@ -167,62 +142,34 @@ const Messages = () => {
           return conv;
         });
 
-        // If new message is for a brand new conversation not yet in the list
+
         if (!conversationExists) {
-            // Potentially fetch user details for `incomingMessage.sender` to create a new conversation entry
-            // For now, let's assume new conversations are initiated by the current user via UI
-            // Or, if the backend provides enough info (like senderName), create a basic entry:
-            // updatedConvs.push({
-            //   id: conversationPartnerId,
-            //   userId: conversationPartnerId,
-            //   name: incomingMessage.senderName || 'New Chat', // Requires senderName
-            //   avatar: (incomingMessage.senderName || 'N').charAt(0),
-            //   lastMessage: formattedMessage.content,
-            //   time: formattedMessage.time,
-            //   lastMessageTimestamp: formattedMessage.timestamp,
-            //   unread: 1,
-            //   online: false, // Need presence info
-            //   pinned: false,
-            //   category: "General"
-            // });
             console.log("Received message for a new or unlisted conversation. Consider fetching conversation list or user details.");
-            // Optionally, trigger a re-fetch of conversations if a message arrives for an unknown chat
-            // fetchConversations();
         }
-        // Sort conversations, e.g., by last message time
         return updatedConvs.sort((a, b) => new Date(b.lastMessageTimestamp) - new Date(a.lastMessageTimestamp));
       });
     };
 
     socketInstance.on("new-message", handleNewMessage);
 
-    // Listen for online/offline status updates if your socket server emits them
-    // socketInstance.on("user-online", (userId) => updateOnlineStatus(userId, true));
-    // socketInstance.on("user-offline", (userId) => updateOnlineStatus(userId, false));
-
     return () => {
       socketInstance.off("new-message", handleNewMessage);
-      // socketInstance.off("user-online");
-      // socketInstance.off("user-offline");
     };
-  }, [socketInstance, currentUser?._id, selectedConversation?.id, dispatch, markMessagesAsRead, fetchConversations]); // Added fetchConversations if called inside
+  }, [socketInstance, currentUser?._id, selectedConversation?.id, dispatch, markMessagesAsRead, fetchConversations]); 
 
-  // Auto-scroll to bottom when messages change
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [messages]);
 
-  // Handle selecting a conversation
   const handleSelectConversation = (conversation) => {
-    if (selectedConversation?.id === conversation.id && messages.length > 0) { // Avoid re-fetch if already selected and messages loaded
-        if(conversation.unread > 0) markMessagesAsRead(conversation.id); // Still mark as read if opened with unread
+    if (selectedConversation?.id === conversation.id && messages.length > 0) { 
+        if(conversation.unread > 0) markMessagesAsRead(conversation.id); 
         return;
     }
     setSelectedConversation(conversation);
-    fetchMessages(conversation.id); // This will now use Redux or API
+    fetchMessages(conversation.id); 
   };
   
-  // Handle key press for sending message with Enter
   const handleKeyPress = (e) => {
     if (e.key === 'Enter' && !e.shiftKey) {
       e.preventDefault();
@@ -238,21 +185,16 @@ const Messages = () => {
         sender: currentUser._id,
         receiver: selectedConversation.id,
         message: newMessage,
-        timestamp: new Date().toISOString(), // Good to send client timestamp, server can override
+        timestamp: new Date().toISOString(), 
       };
       
-      socketInstance.emit("message", messageData); // Send message via socket
-
-      // Optimistic update for the sender's own message can be done here
-      // OR rely on the server to broadcast it back and the "new-message" listener will pick it up.
-      // The current "new-message" listener handles "isOwn" correctly.
+      socketInstance.emit("message", messageData); 
       setNewMessage("");
     } catch (error) {
       console.error("Error sending message:", error);
     }
   };
 
-  // Fetch all users when "+" button is clicked
   const fetchUsers = async () => {
     try {
       const response = await axios.get(import.meta.env.VITE_API_URL+'/api/user/all'); 
@@ -264,42 +206,39 @@ const Messages = () => {
     }
   };
 
-  // Handle user selection from the modal
   const handleSelectUser = async (user) => {
     setIsUserModalOpen(false);
     if (!currentUser?._id) return;
     
     const existingConversation = conversations.find(conv => conv.id === user._id);
+    console.log(onlineUsers, "sadfsadf")
+    console.log(onlineUsers.includes(currentUser._id))
     
     if (existingConversation) {
       handleSelectConversation(existingConversation);
     } else {
-      // Create a new temporary conversation locally
+
       const newConversation = {
         id: user._id,
         userId: user._id,
         name: user.name,
-        avatar: user.name.charAt(0),
+        avatar: !user.avatar ?  user.name.charAt(0): user.avatar,
         lastMessage: "Started a new chat", // Placeholder
         time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
         lastMessageTimestamp: new Date().toISOString(),
         unread: 0,
-        online: user.online || false, // Assuming user object has 'online' status
+        online: onlineUsers.includes(user._id),
         pinned: false,
         category: "General"
       };
 
-      // Add to local state and select it.
-      // The backend conversation might be created upon the first message.
+      console.log(newConversation)
+
       setConversations(prev => [newConversation, ...prev].sort((a, b) => new Date(b.lastMessageTimestamp) - new Date(a.lastMessageTimestamp)));
       handleSelectConversation(newConversation); 
-      // `WorkspaceMessages` will be called for this new conversation. 
-      // API will likely return empty array, which is fine.
-      // Redux will be updated after the first fetch (with an empty array if no history).
     }
   };
 
-  // Filter conversations based on search query and filter
   const filteredConversations = conversations.filter(conversation => {
     const nameMatch = conversation.name?.toLowerCase().includes(searchQuery.toLowerCase());
     const lastMessageMatch = conversation.lastMessage?.toLowerCase().includes(searchQuery.toLowerCase());
@@ -316,7 +255,7 @@ const Messages = () => {
   const uniqueCategories = [...new Set(conversations.map(conv => conv.category).filter(Boolean))];
   const filterOptions = [...categories, ...uniqueCategories];
 
-  if (!currentUser?._id && loading) { // Show a general loading screen if user isn't loaded yet
+  if (!currentUser?._id && loading) {
     return (
       <div className="flex justify-center items-center min-h-screen">
         <div className="animate-spin rounded-full h-12 w-12 border-t-4 border-b-4 border-amber-500"></div>
@@ -369,7 +308,7 @@ const Messages = () => {
         </div>
 
         <div className="flex-grow overflow-y-auto">
-          {loading && conversations.length === 0 ? ( // Show loading spinner only if conversations are empty
+          {loading && conversations.length === 0 ? ( 
             <div className="flex justify-center items-center h-full">
               <div className="animate-spin rounded-full h-8 w-8 border-t-2 border-b-2 border-amber-500"></div>
             </div>
@@ -447,7 +386,7 @@ const Messages = () => {
                 <div className="ml-3">
                   <h2 className="font-medium text-gray-800 truncate">{selectedConversation.name}</h2>
                   <span className="text-xs text-gray-500">
-                    {selectedConversation.online ? "Online" : "Offline"}
+                    {onlineUsers.includes(selectedConversation.id) ? "Online" : "Offline"}
                   </span>
                 </div>
               </div>
@@ -480,7 +419,7 @@ const Messages = () => {
                       <p className="text-sm text-gray-500 mt-2">Start the conversation or say hello!</p>
                     </div>
                   ) : (
-                    messages.map((message) => ( // Removed index as key, use message.id
+                    messages.map((message) => (
                       <div 
                         key={message.id}
                         className={`mb-4 flex ${message.isOwn ? "justify-end" : "justify-start"}`}
@@ -492,7 +431,7 @@ const Messages = () => {
                           </div>
                         )}
                         <div 
-                          className={`max-w-[70%] rounded-lg px-3 py-2 shadow-sm ${ // Adjusted padding
+                          className={`max-w-[70%] rounded-lg px-3 py-2 shadow-sm ${
                             message.isOwn 
                               ? "bg-gradient-to-r from-amber-500 to-orange-600 text-white"
                               : "bg-gray-100 text-gray-800"
@@ -500,7 +439,7 @@ const Messages = () => {
                         >
                           <p className="text-sm break-words">{message.content}</p> {/* Ensure long words break */}
                           <span 
-                            className={`text-xs mt-1 self-end block text-right ${ // Ensure time is on new line if needed and aligned
+                            className={`text-xs mt-1 self-end block text-right ${ 
                               message.isOwn ? "text-amber-200" : "text-gray-500"
                             }`}
                           >
@@ -600,13 +539,3 @@ const Messages = () => {
 };
 
 export default Messages;
-
-// Helper CSS for no-scrollbar (if not using Tailwind plugin)
-// Add this to your global CSS or a style tag if needed:
-// .no-scrollbar::-webkit-scrollbar {
-//   display: none;
-// }
-// .no-scrollbar {
-//   -ms-overflow-style: none;  /* IE and Edge */
-//   scrollbar-width: none;  /* Firefox */
-// }
