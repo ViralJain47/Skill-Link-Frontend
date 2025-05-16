@@ -232,7 +232,7 @@ const Dashboard = () => {
         <div className="flex justify-between items-center">
           <div>
             <h1 className="text-2xl font-bold text-gray-800">
-              Welcome back, User!
+              Welcome back, {user.name.split(' ')[0]}!
             </h1>
             <p className="text-gray-600 mt-1">
               Continue your learning journey today
