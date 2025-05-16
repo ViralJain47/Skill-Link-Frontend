@@ -7,7 +7,6 @@ const url = import.meta.env.VITE_API_URL;
 const SocketContext = createContext();
 
 const SocketProvider = ({ children, userID }) => {
-  console.log("usrlsfmlasldfjadsklfjmdslkfjslfjsm")
   const socket = useMemo(() => {
     return io(url, {
       query: {

@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { Search, Calendar, Clock, Users, ChevronRight } from "lucide-react";
+import SessionForm from "./SessionForm";
 
 const Sessions = () => {
   // State management
@@ -15,6 +16,7 @@ const Sessions = () => {
   const [error, setError] = useState(null);
   const [actionInProgress, setActionInProgress] = useState(null);
   const [notification, setNotification] = useState(null);
+  const [showModal, setShowModal] = useState(false);
 
   // Sample categories - in a real app, you might fetch these from an API
   const categories = ["All", "Web Development", "Design", "Data Science", "Programming", "Marketing"];
@@ -384,6 +386,7 @@ const Sessions = () => {
     // In a real app, this would navigate to a creation form
     console.log("Hosting new session");
     showNotification("Opening session creation form...");
+    setShowModal(true);
   };
 
   // Function to display notifications
@@ -702,6 +705,12 @@ const Sessions = () => {
           Browse all sessions <ChevronRight className="ml-1" size={16} />
         </button>
       </div>
+      <SessionForm 
+      isOpen={showModal}
+      onClose={() => setShowModal(false)}
+      mode= "host"
+      />
+      
     </div>
   );
 };
