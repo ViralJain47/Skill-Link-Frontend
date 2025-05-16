@@ -43,9 +43,6 @@ const Resources = () => {
 
   return (
     <>
-      {blogs.length < 0 ? (
-        <>Loading...</>
-      ) : (
         <>
           <div className="bg-white p-6 rounded-xl shadow-sm border border-amber-100">
             <div className="flex justify-between items-center mb-6">
@@ -263,7 +260,6 @@ const Resources = () => {
             onSubmit={handleAddBlog}
           />
         </>
-      )}{" "}
     </>
   );
 };
