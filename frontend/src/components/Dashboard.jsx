@@ -16,7 +16,6 @@ const Dashboard = () => {
   const [recommendedUsers, setRecommendedUsers] = useState([]);
   
   const user = useSelector((state) => state.auth.userData);
-  console.log(user)
 
   // Fetch and process skill matches
   const fetchSkillMatches = async () => {
@@ -88,9 +87,9 @@ const Dashboard = () => {
     findBestMatches(maxMatches = 5, minCompatibility = 30) {
       const potentialMatches = this.allUsers
         // Exclude the current user
-        .filter(user => user._id !== this.currentUser._id)
+        .filter(user => user?._id !== this.currentUser._id)
         // Exclude users with no skills
-        .filter(user => user.skills && user.skills.length > 0)
+        .filter(user => user?.skills && user?.skills.length > 0)
         // Map and score potential matches
         .map(user => {
           const compatibility = this.calculateSkillCompatibility(
@@ -137,7 +136,6 @@ const Dashboard = () => {
         setError("Error during fetching events");
         console.log(response.data.error);
       } else {
-        console.log(response.data);
         setEvents(response?.data);
         setEvents((prev) => prev.filter((event) => event.host._id != user._id));
         setEvents(prev => prev.slice(0, 3));

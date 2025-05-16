@@ -37,7 +37,6 @@ const authSlice = createSlice({
         },
 
         addMultipleOnlineUsers: (state, action) => {
-            console.log("multiple Online: ", action.payload)
             state.onlineUsers = Array.from(new Set([...state.onlineUsers, ...action.payload]))
         },
     }
