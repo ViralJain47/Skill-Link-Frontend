@@ -1,9 +1,19 @@
-import React, { useState, useEffect, useRef, useContext, useCallback } from "react";
+import React, {
+  useState,
+  useEffect,
+  useRef,
+  useContext,
+  useCallback,
+} from "react";
 import axios from "axios";
 import { useSelector, useDispatch } from "react-redux";
 import { SocketContext } from "../hooks/Socket";
-import { addOnlineUsers, setFirstConversations, removeOfflineUsers } from "../store/authSlice";
-import {v4 as uuid4} from 'uuid' 
+import {
+  addOnlineUsers,
+  setFirstConversations,
+  removeOfflineUsers,
+} from "../store/authSlice";
+import { v4 as uuid4 } from "uuid";
 
 const Messages = () => {
   const [selectedConversation, setSelectedConversation] = useState(null);
@@ -20,103 +30,136 @@ const Messages = () => {
   const messagesEndRef = useRef(null);
   const dispatch = useDispatch();
   const currentUser = useSelector((state) => state.auth.userData);
-  const { firstConversations, onlineUsers } = useSelector((state) => state.auth);
+  const { firstConversations, onlineUsers } = useSelector(
+    (state) => state.auth
+  );
 
   useEffect(() => {
     socketInstance.emit("initialize-message");
-    return () => {
-    };
+    return () => {};
   }, []);
 
-  const fetchConversations = useCallback(async (selectFirst = false) => {
-    if (!currentUser?._id || !firstConversations) {
-      setLoading(false);
-      return;
-    }
-    setLoading(true);
-    try {
-      const response = await axios.get(`${import.meta.env.VITE_API_URL}/api/message/${currentUser?._id}`);
-      const formattedConversations = response.data.conversations.map(conv => ({
-        id: conv?.userId,
-        userId: conv?.userId,
-        name: conv?.name,
-        avatar: conv.avatar ? conv.avatar : conv.name.charAt(0),
-        time: new Date(conv.lastMessageTime).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
-        unread: conv.unreadCount,
-        online: onlineUsers.includes(conv.userId),
-        pinned: conv.pinned,
-        category: conv.category || "General",
-        lastMessageTimestamp: conv.lastMessageTime
-      }));
-
-      setConversations(formattedConversations);
-
-      if (selectFirst && formattedConversations.length > 0 && !selectedConversation) {
-        handleSelectConversation(formattedConversations[0]);
+  const fetchConversations = useCallback(
+    async (selectFirst = false) => {
+      if (!currentUser?._id || !firstConversations) {
+        setLoading(false);
+        return;
       }
-      dispatch(setFirstConversations());
+      setLoading(true);
+      try {
+        const response = await axios.get(
+          `${import.meta.env.VITE_API_URL}/api/message/${currentUser?._id}`
+        );
+        const formattedConversations = response.data.conversations.map(
+          (conv) => ({
+            id: conv?.userId,
+            userId: conv?.userId,
+            name: conv?.name,
+            avatar: conv.avatar ? conv.avatar : conv.name.charAt(0),
+            time: new Date(conv.lastMessageTime).toLocaleTimeString([], {
+              hour: "2-digit",
+              minute: "2-digit",
+            }),
+            unread: conv.unreadCount,
+            online: onlineUsers.includes(conv.userId),
+            pinned: conv.pinned,
+            category: conv.category || "General",
+            lastMessageTimestamp: conv.lastMessageTime,
+          })
+        );
 
-    } catch (error) {
-      console.error("Error fetching conversations:", error);
-    } finally {
-      setLoading(false);
-    }
-  }, [currentUser?._id, selectedConversation, onlineUsers, firstConversations, dispatch]);
+        setConversations(formattedConversations);
 
-  const markMessagesAsRead = useCallback(async (conversationId) => {
-    if (!currentUser?._id || !conversationId) return;
-
-    setConversations(prevConvs =>
-      prevConvs.map(conv =>
-        conv.id === conversationId ? { ...conv, unread: 0 } : conv
-      )
-    );
-
-    // Update the seen status for all messages from this conversation
-    setMessages(prevMessages =>
-    prevMessages.map(msg =>
-      !msg.isOwn ? { ...msg, status: "seen" } : msg
-    )
+        if (
+          selectFirst &&
+          formattedConversations.length > 0 &&
+          !selectedConversation
+        ) {
+          handleSelectConversation(formattedConversations[0]);
+        }
+        dispatch(setFirstConversations());
+      } catch (error) {
+        console.error("Error fetching conversations:", error);
+      } finally {
+        setLoading(false);
+      }
+    },
+    [
+      currentUser?._id,
+      selectedConversation,
+      onlineUsers,
+      firstConversations,
+      dispatch,
+    ]
   );
 
-    // Emit a seen event to let the sender know their messages were seen
-    if (socketInstance) {
-      socketInstance.emit("private:message-seen", {
-        sender: conversationId,
-        receiver: currentUser._id,
-      });
-    }
+  const markMessagesAsRead = useCallback(
+    async (conversationId) => {
+      if (!currentUser?._id || !conversationId) return;
 
-  }, [currentUser?._id, socketInstance]);
+      setConversations((prevConvs) =>
+        prevConvs.map((conv) =>
+          conv.id === conversationId ? { ...conv, unread: 0 } : conv
+        )
+      );
 
-  const fetchMessages = useCallback(async (receiverId) => {
-    if (!currentUser?._id || !receiverId) return;
-    setMessagesLoading(true);
-    setMessages([]);
-    console.log("fetched messages")
-    try {
-      const response = await axios.get(`${import.meta.env.VITE_API_URL}/api/message/${currentUser?._id}/${receiverId}`);
-      const rawMessages = response.data.messages;
-      const formattedApiMessages = rawMessages.map(msg => ({
-        id: msg._id,
-        sender: msg.sender,
-        content: msg.content,
-        timestamp: msg.timestamp,
-        time: new Date(msg.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
-        isOwn: msg.sender === currentUser._id,
-        status: msg.status || (msg.sender === currentUser._id ? "sent" : "seen") // Default status
-      }));
+      // Update the seen status for all messages from this conversation
+      setMessages((prevMessages) =>
+        prevMessages.map((msg) =>
+          !msg.isOwn ? { ...msg, status: "seen" } : msg
+        )
+      );
 
-      setMessages(formattedApiMessages);
-      socketInstance.emit("private:seen-message", rawMessages)
-      markMessagesAsRead(receiverId);
-    } catch (error) {
-      console.error("Error fetching messages from API:", error);
+      // Emit a seen event to let the sender know their messages were seen
+      if (socketInstance) {
+        socketInstance.emit("private:message-seen", {
+          sender: conversationId,
+          receiver: currentUser._id,
+        });
+      }
+    },
+    [currentUser?._id, socketInstance]
+  );
+
+  const fetchMessages = useCallback(
+    async (receiverId) => {
+      if (!currentUser?._id || !receiverId) return;
+      setMessagesLoading(true);
       setMessages([]);
-    } finally {
-      setMessagesLoading(false);
-    }
-  }, [currentUser?._id, markMessagesAsRead]);
+      console.log("fetched messages");
+      try {
+        const response = await axios.get(
+          `${import.meta.env.VITE_API_URL}/api/message/${
+            currentUser?._id
+          }/${receiverId}`
+        );
+        const rawMessages = response.data.messages;
+        const formattedApiMessages = rawMessages.map((msg) => ({
+          id: msg._id,
+          sender: msg.sender,
+          content: msg.content,
+          timestamp: msg.timestamp,
+          time: new Date(msg.timestamp).toLocaleTimeString([], {
+            hour: "2-digit",
+            minute: "2-digit",
+          }),
+          isOwn: msg.sender === currentUser._id,
+          status:
+            msg.status || (msg.sender === currentUser._id ? "sent" : "seen"), // Default status
+        }));
+
+        setMessages(formattedApiMessages);
+        socketInstance.emit("private:seen-message", rawMessages);
+        markMessagesAsRead(receiverId);
+      } catch (error) {
+        console.error("Error fetching messages from API:", error);
+        setMessages([]);
+      } finally {
+        setMessagesLoading(false);
+      }
+    },
+    [selectedConversation?.id]
+  );
 
   useEffect(() => {
     if (currentUser?._id) {
@@ -128,7 +171,10 @@ const Messages = () => {
     if (!socketInstance || !currentUser?._id) return;
 
     const handleNewMessage = (incomingMessage) => {
-      const conversationPartnerId = incomingMessage.sender === currentUser._id ? incomingMessage.receiver : incomingMessage.sender;
+      const conversationPartnerId =
+        incomingMessage.sender === currentUser._id
+          ? incomingMessage.receiver
+          : incomingMessage.sender;
 
       const formattedMessage = {
         id: incomingMessage._id,
@@ -136,23 +182,27 @@ const Messages = () => {
         sender: incomingMessage.sender,
         content: incomingMessage.content,
         timestamp: incomingMessage.timestamp,
-        time: new Date(incomingMessage.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
+        time: new Date(incomingMessage.timestamp).toLocaleTimeString([], {
+          hour: "2-digit",
+          minute: "2-digit",
+        }),
         isOwn: incomingMessage.sender === currentUser._id,
-        status: incomingMessage.sender === currentUser._id ? "sent" : "delivered"
+        status:
+          incomingMessage.sender === currentUser._id ? "sent" : "delivered",
       };
-      console.log("new messsage : ", formattedMessage)
+      console.log("new messsage : ", formattedMessage);
       if (selectedConversation?.id === conversationPartnerId) {
         setMessages((prevMessages) => [...prevMessages, formattedMessage]);
-        
+
         // If this is an incoming message, mark it as seen and notify the sender
         if (!formattedMessage.isOwn) {
           markMessagesAsRead(conversationPartnerId);
         }
       }
 
-      setConversations(prevConvs => {
+      setConversations((prevConvs) => {
         let conversationExists = false;
-        const updatedConvs = prevConvs.map(conv => {
+        const updatedConvs = prevConvs.map((conv) => {
           if (conv.id === conversationPartnerId) {
             conversationExists = true;
             return {
@@ -160,74 +210,90 @@ const Messages = () => {
               lastMessage: formattedMessage.content,
               time: formattedMessage.time,
               lastMessageTimestamp: formattedMessage.timestamp,
-              unread: conv.id === selectedConversation?.id ? 0 : (conv.unread || 0) + 1,
+              unread:
+                conv.id === selectedConversation?.id
+                  ? 0
+                  : (conv.unread || 0) + 1,
             };
           }
           return conv;
         });
 
-
         if (!conversationExists) {
-          console.log("Received message for a new or unlisted conversation. Consider fetching conversation list or user details.");
+          console.log(
+            "Received message for a new or unlisted conversation. Consider fetching conversation list or user details."
+          );
         }
-        return updatedConvs.sort((a, b) => new Date(b.lastMessageTimestamp) - new Date(a.lastMessageTimestamp));
+        return updatedConvs.sort(
+          (a, b) =>
+            new Date(b.lastMessageTimestamp) - new Date(a.lastMessageTimestamp)
+        );
       });
     };
 
     // Handle when a message has been sent successfully
     const handleMessageSent = (data) => {
-      console.log("handle message sent: ", data)
-      if (data.sender === currentUser._id || data.receiver === currentUser._id) {
-        setMessages(prevMessages => 
-          prevMessages.map(msg => {
-            if(msg.id == data.tempId)
-            {
-              msg.id = data._id 
-              const newMsg = { ...msg, status: "sent" }
+      console.log("handle message sent: ", data);
+      if (
+        data.sender === selectedConversation?.id ||
+        data.receiver === selectedConversation?.id
+      ) {
+        setMessages((prevMessages) =>
+          prevMessages.map((msg) => {
+            if (msg.id == data.tempId) {
+              msg.id = data._id;
+              const newMsg = { ...msg, status: "sent" };
               return newMsg;
-            } 
+            }
             return msg;
-          }
-          )
+          })
         );
       }
     };
 
     // Handle when a message has been delivered to recipient
     const handleMessageDelivered = (data) => {
-      console.log("message delivered : ", data)
-      if (data.sender === currentUser._id || data.receiver === currentUser._id) {
-        setMessages(prevMessages => 
-          prevMessages.map(msg => {
-            return msg.id === data._id ? { ...msg, status: "delivered" } : msg
+      console.log("message delivered : ", data);
+      if (
+        data.sender === currentUser?._id 
+      ) {
+        setMessages((prevMessages) =>
+          prevMessages.map((msg) => {
+            return msg.id === data._id ? { ...msg, status: "delivered" } : msg;
           })
-        );  
-
+        );
       }
+
+      if(data.sender == selectedConversation?.id || data.receiver == selectedConversation?.id)
+      {
+          socketInstance.emit("private:seen-message", [data])
+      }
+
     };
 
     // Handle when a message has been seen by recipient
-   const handleMessageSeen = (data) => {
-    if (selectedConversation?.id === data.sender || data.receiver === currentUser._id) {
-      // Update the status of your sent messages in the current conversation to "seen"
-      setMessages(prevMessages =>
-        prevMessages.map(msg =>
-          msg.receiver === selectedConversation.id && msg.sender === currentUser._id && msg.status !== "seen"
-            ? { ...msg, status: "seen" }
-            : msg
-        )
-      );
-    }
-  };
+    const handleMessageSeen = (data) => {
+      if (data.receiver == selectedConversation?.id) {
+        setMessages((prevMessages) =>
+          prevMessages.map((msg) =>
+            msg.sender === data.sender &&
+            msg.receiver === currentUser._id &&
+            msg.status !== "seen"
+              ? { ...msg, status: "seen" }
+              : msg
+          )
+        );
+      }
+    };
 
-  const handleMessageReceived = (data) => {
-      console.log("consoled: ", data)
-  }
+    const handleMessageReceived = (data) => {
+      console.log("consoled: ", data);
+    };
 
     socketInstance.on("private:receive-message", handleNewMessage);
     socketInstance.on("private:message-sent", handleMessageSent);
     socketInstance.on("private:message-delivered", handleMessageDelivered);
-    socketInstance.on("private:receive-message", handleMessageReceived)
+    socketInstance.on("private:receive-message", handleMessageReceived);
     socketInstance.on("private:message-update-seen", handleMessageSeen);
 
     return () => {
@@ -237,7 +303,12 @@ const Messages = () => {
       socketInstance.off("private:receive-message", handleMessageDelivered);
       socketInstance.off("private:message-update-seen", handleMessageSeen);
     };
-  }, [socketInstance, currentUser?._id, selectedConversation?.id, markMessagesAsRead]);
+  }, [
+    socketInstance,
+    currentUser?._id,
+    selectedConversation?.id,
+    markMessagesAsRead,
+  ]);
 
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
@@ -253,19 +324,20 @@ const Messages = () => {
   };
 
   const handleKeyPress = (e) => {
-    if (e.key === 'Enter' && !e.shiftKey) {
+    if (e.key === "Enter" && !e.shiftKey) {
       e.preventDefault();
       sendMessage();
     }
   };
 
   const sendMessage = () => {
-    if (!newMessage.trim() || !selectedConversation || !currentUser?._id) return;
+    if (!newMessage.trim() || !selectedConversation || !currentUser?._id)
+      return;
 
     try {
       // Generate a temporary ID for the message
-      const tempId = uuid4()
-      
+      const tempId = uuid4();
+
       // Create message data
       const messageData = {
         tempId: tempId,
@@ -274,23 +346,26 @@ const Messages = () => {
         content: newMessage,
         timestamp: new Date().toISOString(),
       };
-      
+
       // Add message to UI immediately with "sending" status
       const formattedMessage = {
         id: tempId,
         sender: currentUser._id,
         content: newMessage,
         timestamp: messageData.timestamp,
-        time: new Date(messageData.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
+        time: new Date(messageData.timestamp).toLocaleTimeString([], {
+          hour: "2-digit",
+          minute: "2-digit",
+        }),
         isOwn: true,
-        status: "sending"
+        status: "sending",
       };
-      
-      setMessages(prev => [...prev, formattedMessage]);
-      
+
+      setMessages((prev) => [...prev, formattedMessage]);
+
       // Emit the socket event
       socketInstance.emit("private:message", messageData);
-      
+
       // Clear input field
       setNewMessage("");
     } catch (error) {
@@ -300,8 +375,12 @@ const Messages = () => {
 
   const fetchUsers = async () => {
     try {
-      const response = await axios.get(`${import.meta.env.VITE_API_URL}/api/user/all`);
-      const filteredUsers = response.data.filter(user => user._id !== currentUser?._id);
+      const response = await axios.get(
+        `${import.meta.env.VITE_API_URL}/api/user/all`
+      );
+      const filteredUsers = response.data.filter(
+        (user) => user._id !== currentUser?._id
+      );
       setUsers(filteredUsers);
       setIsUserModalOpen(true);
     } catch (error) {
@@ -313,7 +392,9 @@ const Messages = () => {
     setIsUserModalOpen(false);
     if (!currentUser?._id) return;
 
-    const existingConversation = conversations.find(conv => conv.id === user._id);
+    const existingConversation = conversations.find(
+      (conv) => conv.id === user._id
+    );
 
     if (existingConversation) {
       handleSelectConversation(existingConversation);
@@ -324,16 +405,24 @@ const Messages = () => {
         name: user.name,
         avatar: !user.avatar ? user.name.charAt(0) : user.avatar,
         lastMessage: "Started a new chat", // Placeholder
-        time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
+        time: new Date().toLocaleTimeString([], {
+          hour: "2-digit",
+          minute: "2-digit",
+        }),
         lastMessageTimestamp: new Date().toISOString(),
         unread: 0,
         online: onlineUsers.includes(user._id),
         pinned: false,
-        category: "General"
+        category: "General",
       };
 
-      setConversations(prev => [newConversation, ...prev].sort((a, b) => new Date(b.lastMessageTimestamp) - new Date(a.lastMessageTimestamp)));
-      handleSelectConversation(newConversation); 
+      setConversations((prev) =>
+        [newConversation, ...prev].sort(
+          (a, b) =>
+            new Date(b.lastMessageTimestamp) - new Date(a.lastMessageTimestamp)
+        )
+      );
+      handleSelectConversation(newConversation);
     }
   };
 
@@ -343,7 +432,18 @@ const Messages = () => {
       case "sending":
         return (
           <span className="text-xs mr-1 text-amber-200">
-            <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="inline-block">
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              width="12"
+              height="12"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="2"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              className="inline-block"
+            >
               <circle cx="12" cy="12" r="10"></circle>
               <polyline points="12 6 12 12 16 14"></polyline>
             </svg>
@@ -352,7 +452,18 @@ const Messages = () => {
       case "sent":
         return (
           <span className="text-xs mr-1 text-amber-200">
-            <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="inline-block">
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              width="12"
+              height="12"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="2"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              className="inline-block"
+            >
               <polyline points="20 6 9 17 4 12"></polyline>
             </svg>
           </span>
@@ -360,7 +471,18 @@ const Messages = () => {
       case "delivered":
         return (
           <span className="text-xs mr-1 text-amber-200">
-            <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="inline-block">
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              width="12"
+              height="12"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="2"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              className="inline-block"
+            >
               <path d="M18 7l-8 8-4-4"></path>
               <path d="M23 7l-8 8-4-4"></path>
             </svg>
@@ -369,7 +491,18 @@ const Messages = () => {
       case "seen":
         return (
           <span className="text-xs mr-1 text-amber-200">
-            <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="inline-block">
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              width="12"
+              height="12"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="2"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              className="inline-block"
+            >
               <path d="M18 7l-8 8-4-4"></path>
               <path d="M23 7l-8 8-4-4"></path>
               <circle cx="5" cy="12" r="3" fill="currentColor"></circle>
@@ -381,20 +514,27 @@ const Messages = () => {
     }
   };
 
-  const filteredConversations = conversations.filter(conversation => {
-    const nameMatch = conversation.name?.toLowerCase().includes(searchQuery.toLowerCase());
-    const lastMessageMatch = conversation.lastMessage?.toLowerCase().includes(searchQuery.toLowerCase());
+  const filteredConversations = conversations.filter((conversation) => {
+    const nameMatch = conversation.name
+      ?.toLowerCase()
+      .includes(searchQuery.toLowerCase());
+    const lastMessageMatch = conversation.lastMessage
+      ?.toLowerCase()
+      .includes(searchQuery.toLowerCase());
     const matchesSearch = nameMatch || lastMessageMatch;
 
-    const matchesFilter = filter === "All" || 
-                        (filter === "Unread" && conversation.unread > 0) ||
-                        (filter === "Pinned" && conversation.pinned) ||
-                        filter === conversation.category;
+    const matchesFilter =
+      filter === "All" ||
+      (filter === "Unread" && conversation.unread > 0) ||
+      (filter === "Pinned" && conversation.pinned) ||
+      filter === conversation.category;
     return matchesSearch && matchesFilter;
   });
 
   const categories = ["All", "Unread", "Pinned"];
-  const uniqueCategories = [...new Set(conversations.map(conv => conv.category).filter(Boolean))];
+  const uniqueCategories = [
+    ...new Set(conversations.map((conv) => conv.category).filter(Boolean)),
+  ];
   const filterOptions = [...categories, ...uniqueCategories];
 
   if (!currentUser?._id && loading) {
@@ -411,7 +551,7 @@ const Messages = () => {
       <div className="w-1/3 border-r border-amber-100 pr-4 flex flex-col">
         <div className="flex justify-between items-center mb-4">
           <h1 className="text-2xl font-bold text-gray-800">Messages</h1>
-          <button 
+          <button
             className="p-2 bg-gradient-to-r from-amber-500 to-orange-600 text-white rounded-full hover:from-amber-600 hover:to-orange-700 shadow-md transition duration-300 text-lg flex items-center justify-center h-10 w-10"
             onClick={fetchUsers}
             aria-label="New Conversation"
@@ -429,7 +569,20 @@ const Messages = () => {
             onChange={(e) => setSearchQuery(e.target.value)}
           />
           <div className="absolute right-3 top-1/2 transform -translate-y-1/2 text-amber-500">
-            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              width="20"
+              height="20"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="2"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+            >
+              <circle cx="11" cy="11" r="8"></circle>
+              <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+            </svg>
           </div>
         </div>
 
@@ -450,25 +603,27 @@ const Messages = () => {
         </div>
 
         <div className="flex-grow overflow-y-auto">
-          {loading && conversations.length === 0 ? ( 
+          {loading && conversations.length === 0 ? (
             <div className="flex justify-center items-center h-full">
               <div className="animate-spin rounded-full h-8 w-8 border-t-2 border-b-2 border-amber-500"></div>
             </div>
           ) : (
             <>
               {filteredConversations.map((conversation) => (
-                <div 
+                <div
                   key={conversation.id}
                   className={`p-3 rounded-lg mb-2 cursor-pointer transition duration-200 ${
-                    selectedConversation?.id === conversation.id 
-                      ? "bg-gradient-to-r from-amber-100 to-orange-100 border-l-4 border-amber-500" 
+                    selectedConversation?.id === conversation.id
+                      ? "bg-gradient-to-r from-amber-100 to-orange-100 border-l-4 border-amber-500"
                       : "hover:bg-amber-50"
                   }`}
                   onClick={() => handleSelectConversation(conversation)}
                 >
                   <div className="flex items-center">
                     <div className="relative">
-                      <div className={`h-10 w-10 rounded-full bg-gradient-to-br from-amber-400 to-orange-500 flex items-center justify-center text-white font-bold text-sm`}>
+                      <div
+                        className={`h-10 w-10 rounded-full bg-gradient-to-br from-amber-400 to-orange-500 flex items-center justify-center text-white font-bold text-sm`}
+                      >
                         {conversation.avatar}
                       </div>
                       {conversation.online && (
@@ -478,17 +633,29 @@ const Messages = () => {
 
                     <div className="ml-3 flex-grow min-w-0">
                       <div className="flex justify-between items-center">
-                        <span className="font-medium text-gray-800 truncate">{conversation.name}</span>
+                        <span className="font-medium text-gray-800 truncate">
+                          {conversation.name}
+                        </span>
                         <div className="flex items-center flex-shrink-0">
-                          {conversation.pinned && <span className="text-amber-500 mr-1 text-xs">📌</span>}
-                          <span className="text-xs text-gray-500 whitespace-nowrap">{conversation.time}</span>
+                          {conversation.pinned && (
+                            <span className="text-amber-500 mr-1 text-xs">
+                              📌
+                            </span>
+                          )}
+                          <span className="text-xs text-gray-500 whitespace-nowrap">
+                            {conversation.time}
+                          </span>
                         </div>
                       </div>
                       <div className="flex justify-between items-center mt-1">
-                        <p className="text-sm text-gray-600 truncate">{conversation.lastMessage}</p>
+                        <p className="text-sm text-gray-600 truncate">
+                          {conversation.lastMessage}
+                        </p>
                         {conversation.unread > 0 && (
                           <span className="ml-2 bg-gradient-to-r from-amber-500 to-orange-600 text-white text-xs rounded-full h-5 w-5 flex items-center justify-center flex-shrink-0">
-                            {conversation.unread > 9 ? '9+' : conversation.unread}
+                            {conversation.unread > 9
+                              ? "9+"
+                              : conversation.unread}
                           </span>
                         )}
                       </div>
@@ -500,10 +667,27 @@ const Messages = () => {
               {!loading && filteredConversations.length === 0 && (
                 <div className="text-center py-10">
                   <div className="text-amber-500 text-4xl mb-4">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" className="inline-block"><path d="M12 22V12M12 12L15.5 15.5M12 12L8.5 15.5M12 12V6.5C12 4.01472 14.0147 2 16.5 2C18.9853 2 21 4.01472 21 6.5V17.5C21 19.9853 18.9853 22 16.5 22M12 12V6.5C12 4.01472 9.98528 2 7.5 2C5.01472 2 3 4.01472 3 6.5V17.5C3 19.9853 5.01472 22 7.5 22"/></svg>
+                    <svg
+                      xmlns="http://www.w3.org/2000/svg"
+                      width="48"
+                      height="48"
+                      viewBox="0 0 24 24"
+                      fill="none"
+                      stroke="currentColor"
+                      strokeWidth="1.5"
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      className="inline-block"
+                    >
+                      <path d="M12 22V12M12 12L15.5 15.5M12 12L8.5 15.5M12 12V6.5C12 4.01472 14.0147 2 16.5 2C18.9853 2 21 4.01472 21 6.5V17.5C21 19.9853 18.9853 22 16.5 22M12 12V6.5C12 4.01472 9.98528 2 7.5 2C5.01472 2 3 4.01472 3 6.5V17.5C3 19.9853 5.01472 22 7.5 22" />
+                    </svg>
                   </div>
-                  <h3 className="text-md font-medium text-gray-700">No conversations found</h3>
-                  <p className="text-sm text-gray-500 mt-2">Try different search terms or start a new chat.</p>
+                  <h3 className="text-md font-medium text-gray-700">
+                    No conversations found
+                  </h3>
+                  <p className="text-sm text-gray-500 mt-2">
+                    Try different search terms or start a new chat.
+                  </p>
                 </div>
               )}
             </>
@@ -526,21 +710,80 @@ const Messages = () => {
                   )}
                 </div>
                 <div className="ml-3">
-                  <h2 className="font-medium text-gray-800 truncate">{selectedConversation.name}</h2>
+                  <h2 className="font-medium text-gray-800 truncate">
+                    {selectedConversation.name}
+                  </h2>
                   <span className="text-xs text-gray-500">
-                    {onlineUsers.includes(selectedConversation.id) ? "Online" : "Offline"}
+                    {onlineUsers.includes(selectedConversation.id)
+                      ? "Online"
+                      : "Offline"}
                   </span>
                 </div>
               </div>
               <div className="flex space-x-1">
-                <button className="p-2 rounded-full hover:bg-amber-50 text-amber-600 transition duration-200" aria-label="Call">
-                  <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"></path></svg>
+                <button
+                  className="p-2 rounded-full hover:bg-amber-50 text-amber-600 transition duration-200"
+                  aria-label="Call"
+                >
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    width="20"
+                    height="20"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    strokeWidth="2"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                  >
+                    <path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"></path>
+                  </svg>
                 </button>
-                <button className="p-2 rounded-full hover:bg-amber-50 text-amber-600 transition duration-200" aria-label="Video Call">
-                  <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polygon points="23 7 16 12 23 17 23 7"></polygon><rect x="1" y="5" width="15" height="14" rx="2" ry="2"></rect></svg>
+                <button
+                  className="p-2 rounded-full hover:bg-amber-50 text-amber-600 transition duration-200"
+                  aria-label="Video Call"
+                >
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    width="20"
+                    height="20"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    strokeWidth="2"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                  >
+                    <polygon points="23 7 16 12 23 17 23 7"></polygon>
+                    <rect
+                      x="1"
+                      y="5"
+                      width="15"
+                      height="14"
+                      rx="2"
+                      ry="2"
+                    ></rect>
+                  </svg>
                 </button>
-                <button className="p-2 rounded-full hover:bg-amber-50 text-amber-600 transition duration-200" aria-label="More options">
-                  <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="1"></circle><circle cx="19" cy="12" r="1"></circle><circle cx="5" cy="12" r="1"></circle></svg>
+                <button
+                  className="p-2 rounded-full hover:bg-amber-50 text-amber-600 transition duration-200"
+                  aria-label="More options"
+                >
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    width="20"
+                    height="20"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    strokeWidth="2"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                  >
+                    <circle cx="12" cy="12" r="1"></circle>
+                    <circle cx="19" cy="12" r="1"></circle>
+                    <circle cx="5" cy="12" r="1"></circle>
+                  </svg>
                 </button>
               </div>
             </div>
@@ -555,35 +798,59 @@ const Messages = () => {
                   {messages.length === 0 ? (
                     <div className="text-center py-10">
                       <div className="text-amber-500 text-4xl mb-4">
-                        <svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" className="inline-block"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path></svg>
+                        <svg
+                          xmlns="http://www.w3.org/2000/svg"
+                          width="48"
+                          height="48"
+                          viewBox="0 0 24 24"
+                          fill="none"
+                          stroke="currentColor"
+                          strokeWidth="1.5"
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                          className="inline-block"
+                        >
+                          <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path>
+                        </svg>
                       </div>
-                      <h3 className="text-md font-medium text-gray-700">No messages yet</h3>
-                      <p className="text-sm text-gray-500 mt-2">Start the conversation or say hello!</p>
+                      <h3 className="text-md font-medium text-gray-700">
+                        No messages yet
+                      </h3>
+                      <p className="text-sm text-gray-500 mt-2">
+                        Start the conversation or say hello!
+                      </p>
                     </div>
                   ) : (
                     messages.map((message) => (
-                      <div 
+                      <div
                         key={message.id}
-                        className={`mb-4 flex ${message.isOwn ? "justify-end" : "justify-start"}`}
+                        className={`mb-4 flex ${
+                          message.isOwn ? "justify-end" : "justify-start"
+                        }`}
                       >
                         {!message.isOwn && (
                           <div className="h-8 w-8 rounded-full bg-gradient-to-br from-gray-300 to-gray-400 flex items-center justify-center text-white font-bold mr-2 mt-1 flex-shrink-0">
                             {selectedConversation.avatar}
                           </div>
                         )}
-                        <div 
+                        <div
                           className={`max-w-[70%] rounded-lg px-3 py-2 shadow-sm ${
-                            message.isOwn 
+                            message.isOwn
                               ? "bg-gradient-to-r from-amber-500 to-orange-600 text-white"
                               : "bg-gray-100 text-gray-800"
                           }`}
                         >
-                          <p className="text-sm break-words">{message.content}</p>
+                          <p className="text-sm break-words">
+                            {message.content}
+                          </p>
                           <div className="flex justify-end items-center mt-1">
-                            {message.isOwn && renderMessageStatus(message.status)}
-                            <span 
+                            {message.isOwn &&
+                              renderMessageStatus(message.status)}
+                            <span
                               className={`text-xs self-end block ${
-                                message.isOwn ? "text-amber-200" : "text-gray-500"
+                                message.isOwn
+                                  ? "text-amber-200"
+                                  : "text-gray-500"
                               }`}
                             >
                               {message.time}
@@ -600,12 +867,24 @@ const Messages = () => {
 
             <div className="border-t border-amber-100 pt-4">
               <div className="flex items-center space-x-2">
-                <button 
+                <button
                   type="button"
                   className="p-2 rounded-full text-amber-500 hover:bg-amber-50 transition duration-200"
                   aria-label="Attach file"
                 >
-                  <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M21.44 11.05l-9.19 9.19a6 6 0 0 1-8.49-8.49l9.19-9.19a4 4 0 0 1 5.66 5.66l-9.2 9.19a2 2 0 0 1-2.83-2.83l8.49-8.48"></path></svg>
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    width="20"
+                    height="20"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    strokeWidth="2"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                  >
+                    <path d="M21.44 11.05l-9.19 9.19a6 6 0 0 1-8.49-8.49l9.19-9.19a4 4 0 0 1 5.66 5.66l-9.2 9.19a2 2 0 0 1-2.83-2.83l8.49-8.48"></path>
+                  </svg>
                 </button>
                 <input
                   type="text"
@@ -616,15 +895,36 @@ const Messages = () => {
                   onKeyDown={handleKeyPress}
                   disabled={messagesLoading || !selectedConversation}
                 />
-                <button 
+                <button
                   onClick={sendMessage}
                   className={`p-2 bg-gradient-to-r from-amber-500 to-orange-600 text-white rounded-full hover:from-amber-600 hover:to-orange-700 shadow-md transition duration-300 h-10 w-10 flex items-center justify-center ${
-                    (!newMessage.trim() || messagesLoading || !selectedConversation) ? "opacity-50 cursor-not-allowed" : ""
+                    !newMessage.trim() ||
+                    messagesLoading ||
+                    !selectedConversation
+                      ? "opacity-50 cursor-not-allowed"
+                      : ""
                   }`}
-                  disabled={!newMessage.trim() || messagesLoading || !selectedConversation}
+                  disabled={
+                    !newMessage.trim() ||
+                    messagesLoading ||
+                    !selectedConversation
+                  }
                   aria-label="Send message"
                 >
-                  <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><line x1="22" y1="2" x2="11" y2="13"></line><polygon points="22 2 15 22 11 13 2 9 22 2"></polygon></svg>
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    width="20"
+                    height="20"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    strokeWidth="2"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                  >
+                    <line x1="22" y1="2" x2="11" y2="13"></line>
+                    <polygon points="22 2 15 22 11 13 2 9 22 2"></polygon>
+                  </svg>
                 </button>
               </div>
             </div>
@@ -632,10 +932,31 @@ const Messages = () => {
         ) : (
           <div className="flex-grow flex flex-col items-center justify-center text-center px-4">
             <div className="text-amber-500 text-6xl mb-4">
-              <svg xmlns="http://www.w3.org/2000/svg" width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" className="inline-block"><path d="M17 9 দূত1-7-7 7"></path><path d="M7 17l4-4"></path><path d="M14 10l-4 4"></path><path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8c-.5 1.3-1.2 2.4-2.1 3.2a8.57 8.57 0 0 1-3.2 2.1 8.38 8.38 0 0 1-3.8.9A8.38 8.38 0 0 1 7.2 21a8.57 8.57 0 0 1-3.2-2.1A8.38 8.38 0 0 1 3 15.2a8.38 8.38 0 0 1 .9-3.8 8.57 8.57 0 0 1 2.1-3.2A8.38 8.38 0 0 1 9.8 3a8.38 8.38 0 0 1 3.8-.9c1.3.1 2.6.5 3.8.9a8.57 8.57 0 0 1 3.2 2.1 8.38 8.38 0 0 1 .9 3.8z"></path></svg>
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                width="64"
+                height="64"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="1.5"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                className="inline-block"
+              >
+                <path d="M17 9 L 1 -7 L -7 7"></path>
+                <path d="M7 17l4-4"></path>
+                <path d="M14 10l-4 4"></path>
+                <path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8c-.5 1.3-1.2 2.4-2.1 3.2a8.57 8.57 0 0 1-3.2 2.1 8.38 8.38 0 0 1-3.8.9A8.38 8.38 0 0 1 7.2 21a8.57 8.57 0 0 1-3.2-2.1A8.38 8.38 0 0 1 3 15.2a8.38 8.38 0 0 1 .9-3.8 8.57 8.57 0 0 1 2.1-3.2A8.38 8.38 0 0 1 9.8 3a8.38 8.38 0 0 1 3.8-.9c1.3.1 2.6.5 3.8.9a8.57 8.57 0 0 1 3.2 2.1 8.38 8.38 0 0 1 .9 3.8z"></path>
+              </svg>
             </div>
-            <h2 className="text-xl font-medium text-gray-700">Select a conversation</h2>
-            <p className="text-gray-500 mt-2">Choose a contact from the sidebar to start messaging or create a new chat.</p>
+            <h2 className="text-xl font-medium text-gray-700">
+              Select a conversation
+            </h2>
+            <p className="text-gray-500 mt-2">
+              Choose a contact from the sidebar to start messaging or create a
+              new chat.
+            </p>
           </div>
         )}
       </div>
@@ -645,20 +966,37 @@ const Messages = () => {
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
           <div className="bg-white rounded-xl p-6 w-full max-w-md max-h-[80vh] flex flex-col">
             <div className="flex justify-between items-center mb-4">
-              <h2 className="text-xl font-bold text-gray-800">Start a New Chat</h2>
+              <h2 className="text-xl font-bold text-gray-800">
+                Start a New Chat
+              </h2>
               <button
                 className="p-1 text-gray-400 hover:text-gray-700 rounded-full hover:bg-gray-100"
                 onClick={() => setIsUserModalOpen(false)}
                 aria-label="Close modal"
               >
-                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  width="24"
+                  height="24"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="2"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                >
+                  <line x1="18" y1="6" x2="6" y2="18"></line>
+                  <line x1="6" y1="6" x2="18" y2="18"></line>
+                </svg>
               </button>
             </div>
             {users.length === 0 ? (
-              <p className="text-gray-500 text-center py-4">No other users found to start a new chat.</p>
+              <p className="text-gray-500 text-center py-4">
+                No other users found to start a new chat.
+              </p>
             ) : (
               <div className="space-y-2 overflow-y-auto">
-                {users.map(user => (
+                {users.map((user) => (
                   <div
                     key={user._id}
                     className="flex items-center p-3 rounded-lg hover:bg-amber-50 cursor-pointer"
@@ -669,7 +1007,7 @@ const Messages = () => {
                     </div>
                     <div className="ml-3">
                       <p className="font-medium text-gray-800">{user.name}</p>
-                      <p  className="text-sm text-gray-500">{user.email}</p>
+                      <p className="text-sm text-gray-500">{user.email}</p>
                     </div>
                   </div>
                 ))}
